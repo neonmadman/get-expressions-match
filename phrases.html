@@ -25,16 +25,16 @@
 // actually refers to: the numbered sentences with the phrase bolded,
 // shown here as a static reference list, not draggable.
 const EXPRESSIONS = [
-  { n: 1, sentence: "I can't wait to get away.", bold: "get away" },
-  { n: 2, sentence: "I've always wanted to learn how to surf and I'll finally get to do it.", bold: "get to" },
-  { n: 3, sentence: "I couldn't get over just how strong they are.", bold: "couldn't get over" },
-  { n: 4, sentence: "Actually, I got into a bit of trouble once.", bold: "got into" },
-  { n: 5, sentence: "I tried to get hold of it.", bold: "get hold of" },
-  { n: 6, sentence: "It got swept away by the wave.", bold: "got swept away" },
-  { n: 7, sentence: "I soon realized that I wasn't getting anywhere.", bold: "wasn't getting anywhere" },
-  { n: 8, sentence: "I got the feeling I was being pulled out to sea.", bold: "got the feeling" },
-  { n: 9, sentence: "So I waved to get someone's attention.", bold: "get someone's attention" },
-  { n: 10, sentence: "I had a bad experience, but I soon got over it.", bold: "got over" }
+  { n: 1, letter: "a", sentence: "I can't wait to get away.", bold: "get away" },
+  { n: 2, letter: "b", sentence: "I've always wanted to learn how to surf and I'll finally get to do it.", bold: "get to" },
+  { n: 3, letter: "c", sentence: "I couldn't get over just how strong they are.", bold: "couldn't get over" },
+  { n: 4, letter: "d", sentence: "Actually, I got into a bit of trouble once.", bold: "got into" },
+  { n: 5, letter: "e", sentence: "I tried to get hold of it.", bold: "get hold of" },
+  { n: 6, letter: "f", sentence: "It got swept away by the wave.", bold: "got swept away" },
+  { n: 7, letter: "g", sentence: "I soon realized that I wasn't getting anywhere.", bold: "wasn't getting anywhere" },
+  { n: 8, letter: "h", sentence: "I got the feeling I was being pulled out to sea.", bold: "got the feeling" },
+  { n: 9, letter: "i", sentence: "So I waved to get someone's attention.", bold: "get someone's attention" },
+  { n: 10, letter: "j", sentence: "I had a bad experience, but I soon got over it.", bold: "got over" }
 ];
 
 // "BLANK" marks the single blank where the whole phrase goes (in its
@@ -114,7 +114,7 @@ styleTag.textContent = `
     box-shadow: 0 1px 3px rgba(15,30,45,0.06);
   }
 
-  .layout{ display:grid; grid-template-columns: 0.8fr 1.2fr; gap: 36px; align-items:start; }
+  .layout{ display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 36px; align-items:start; }
 
   /* ---------- shared column-header style, matches Exercise 1 ---------- */
   .col-header{
@@ -318,24 +318,24 @@ function render(){
     </header>
     <div class="board">
       <div class="layout">
-        <div class="ref-panel">
-          <h2 class="col-header">Expressions</h2>
-          <div class="ref-list">
-            ${EXPRESSIONS.map(ex => `
-              <div class="ref-item">
-                <span class="badge-circle">${ex.n}</span>
-                <span>${boldify(ex.sentence, ex.bold)}</span>
-              </div>
-            `).join('')}
-          </div>
-        </div>
         <div class="sentences-col-wrap">
           <h2 class="col-header">Phrases</h2>
           <div class="sentences-col">
             ${SENTENCES.map((s, i) => `
               <div class="row">
-                <span class="letter-label">${s.letter})</span>
+                <span class="badge-circle">${i+1}</span>
                 <span class="sentence-text">${renderSentence(s.parts)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="ref-panel">
+          <h2 class="col-header">Expressions</h2>
+          <div class="ref-list">
+            ${EXPRESSIONS.map(ex => `
+              <div class="ref-item">
+                <span class="letter-label">${ex.letter})</span>
+                <span>${boldify(ex.sentence, ex.bold)}</span>
               </div>
             `).join('')}
           </div>
