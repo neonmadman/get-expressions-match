@@ -40,17 +40,21 @@ const EXPRESSIONS = [
 // "BLANK" marks the single blank where the whole phrase goes (in its
 // correct tense/form). refExpr is the Exercise 1 expression number —
 // kept here only as an authoring note for you (not displayed).
+// "BLANK" marks the single blank where the whole phrase goes (in its
+// correct tense/form). letter is this phrase's a-j label. refExpr is the
+// Exercise 1 expression number — kept only as an authoring note (not
+// displayed).
 const SENTENCES = [
-  { parts: ["She ran out on the road to ", "BLANK", "."], refExpr: 9 },
-  { parts: ["They were exhausted and hungry, but after some food and sleep they soon ", "BLANK", " the experience."], refExpr: 10 },
-  { parts: ["When he saw the same tree for the third time, he began to ", "BLANK", " that he was lost."], refExpr: 8 },
-  { parts: ["He went on a course about surviving in the woods and ", "BLANK", " put into practice his fire-making skills."], refExpr: 2 },
-  { parts: ["They decided to ski off the main trail where the snow was fresh, but it was also quite dangerous and they soon ", "BLANK", " trouble."], refExpr: 4 },
-  { parts: ["The boat was sinking, but we all managed to ", "BLANK", " a life-jacket."], refExpr: 5 },
-  { parts: ["She was crossing the river, but the current was strong and she ", "BLANK", " by the water."], refExpr: 6 },
-  { parts: ["They had been walking for hours, but they'd only walked about two kilometers. They felt like they weren't ", "BLANK", "."], refExpr: 7 },
-  { parts: ["They were in such a rush to ", "BLANK", " to the mountains, they left without taking sensible walking boots."], refExpr: 1 },
-  { parts: ["When they were in the water, they ", "BLANK", " how high the waves were."], refExpr: 3 }
+  { letter: "a", parts: ["She ran out on the road to ", "BLANK", "."], refExpr: 9 },
+  { letter: "b", parts: ["They were exhausted and hungry, but after some food and sleep they soon ", "BLANK", " the experience."], refExpr: 10 },
+  { letter: "c", parts: ["When he saw the same tree for the third time, he began to ", "BLANK", " that he was lost."], refExpr: 8 },
+  { letter: "d", parts: ["He went on a course about surviving in the woods and ", "BLANK", " put into practice his fire-making skills."], refExpr: 2 },
+  { letter: "e", parts: ["They decided to ski off the main trail where the snow was fresh, but it was also quite dangerous and they soon ", "BLANK", " trouble."], refExpr: 4 },
+  { letter: "f", parts: ["The boat was sinking, but we all managed to ", "BLANK", " a life-jacket."], refExpr: 5 },
+  { letter: "g", parts: ["She was crossing the river, but the current was strong and she ", "BLANK", " by the water."], refExpr: 6 },
+  { letter: "h", parts: ["They had been walking for hours, but they'd only walked about two kilometers. They felt like they ", "BLANK", "."], refExpr: 7 },
+  { letter: "i", parts: ["They were in such a rush to ", "BLANK", " to the mountains, they left without taking sensible walking boots."], refExpr: 1 },
+  { letter: "j", parts: ["When they were in the water, they ", "BLANK", " how high the waves were."], refExpr: 3 }
 ];
 
 const root = document.getElementById('app');
@@ -169,6 +173,16 @@ styleTag.textContent = `
     font-size: 0.85rem;
     color: #ffffff;
     background: var(--header-accent);
+  }
+
+  /* Phrases lettering — same quiet, muted "a)" label used for Meanings
+     in Exercise 1: no circle, no bold color, just a small marker. */
+  .letter-label{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.78rem;
+    color: var(--chalk-dim);
+    flex-shrink: 0;
   }
 
   .sentences-col{ display:flex; flex-direction:column; gap: 16px; }
@@ -309,6 +323,7 @@ function render(){
           <div class="ref-list">
             ${EXPRESSIONS.map(ex => `
               <div class="ref-item">
+                <span class="badge-circle">${ex.n}</span>
                 <span>${boldify(ex.sentence, ex.bold)}</span>
               </div>
             `).join('')}
@@ -319,7 +334,7 @@ function render(){
           <div class="sentences-col">
             ${SENTENCES.map((s, i) => `
               <div class="row">
-                <span class="badge-circle">${i+1}</span>
+                <span class="letter-label">${s.letter})</span>
                 <span class="sentence-text">${renderSentence(s.parts)}</span>
               </div>
             `).join('')}
