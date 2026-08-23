@@ -169,15 +169,33 @@ styleTag.textContent = `
   }
   .section .hint{ font-size: var(--fs-sm); color: var(--chalk-dim); margin: 0 0 16px; }
 
+  /* "Admin" sections — output/utility areas that aren't part of the
+     lesson content itself (currently just Get Your Link). Deliberately
+     NOT the dashed blue "you are building something" card look used by
+     Title/Sentences/Preview — solid border, neutral gray-blue instead of
+     brand blue, so it reads as "you've left the editing area" at a
+     glance rather than just another step in constructing the lesson. */
+  .section-admin{
+    border-style: solid;
+    border-color: #D3DBE5;
+    background: #F5F7FA;
+  }
+  .section-admin h2{ color: #5B6472; }
+
   .edit-notice{
-    background: rgba(31,111,168,0.08);
-    border: 1.5px solid rgba(31,111,168,0.3);
+    background: linear-gradient(180deg, var(--done-bg), var(--done-bg-2));
+    border: 1.5px solid var(--done-border);
     border-radius: 10px;
-    padding: 10px 14px;
+    padding: 12px 14px;
     font-size: var(--fs-sm);
     color: var(--chalk);
     margin-bottom: 20px;
+    font-weight: 600;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
   }
+  .edit-notice .warn-icon{ flex-shrink: 0; font-weight: 700; }
 
   label{
     display:block;
@@ -367,11 +385,74 @@ styleTag.textContent = `
   }
 
   /* ---------- link result ---------- */
-  #linkResult{ display:none; margin-top: 14px; }
+  .link-columns{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .link-col{
+    display: flex;
+    flex-direction: column;
+    min-height: 130px;
+    background: #ffffff;
+    border: 1.5px solid #D3DBE5;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .link-col-label{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: var(--fs-sm);
+    color: var(--chalk-dim);
+    margin: 0 0 10px;
+  }
+  /* The "light up" cue: before generating, this column is visually quiet
+     (placeholder text, neutral border). The moment a link exists, the
+     background and border shift to a clearly brighter, "ready" state —
+     an unmistakable visual answer to "did that work, and where's my
+     link now." */
+  .link-col-student{ transition: background-color .35s ease, border-color .35s ease; }
+  .link-col-student.generated{
+    background: linear-gradient(180deg, #EAF7ED, #DFF3E3);
+    border-color: #8FCB9C;
+  }
+  .link-col-placeholder{
+    color: var(--chalk-dim);
+    font-size: var(--fs-sm);
+    margin: auto 0;
+  }
+  .link-col .field{ margin: auto 0 0; }
+  .link-col-teaser{
+    font-size: var(--fs-sm);
+    color: var(--chalk);
+    margin: auto 0 0;
+    line-height: 1.5;
+  }
+  .inline-link{
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 700;
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .inline-link:hover{ color: #185a87; }
+  .inline-link:focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; }
   #linkResult .field{ margin-bottom: 10px; }
   .copy-row{ display:flex; gap: 10px; }
   .copy-row input{ flex:1; }
-  #copyStatus{ font-size: var(--fs-sm); color: var(--accent); margin-top: 6px; min-height: 1.2em; }
+  #copyStatus{ font-size: var(--fs-sm); color: var(--accent); margin-top: 10px; min-height: 1.2em; }
+
+  @media (max-width: 700px){
+    .link-columns{ grid-template-columns: 1fr; }
+  }
 
   @media (max-width: 700px){
     .type-switcher{ grid-template-columns: 1fr; }
@@ -428,11 +509,11 @@ function render(){
       <h2>Title</h2>
       <div class="field">
         <label for="titleInput">Exercise title</label>
-        <input type="text" id="titleInput" placeholder="e.g. Building Sentences with Phrases">
+        <input type="text" id="titleInput" autocomplete="off" placeholder="e.g. Building Sentences with Phrases">
       </div>
       <div class="field">
         <label for="subtitleInput">Instructions for students</label>
-        <textarea id="subtitleInput" rows="2" placeholder="e.g. Complete the sentences with the correct word or phrase."></textarea>
+        <textarea id="subtitleInput" autocomplete="off" rows="2" placeholder="e.g. Complete the sentences with the correct word or phrase."></textarea>
       </div>
     </div>
 
@@ -450,27 +531,36 @@ function render(){
       <div class="preview-board" id="previewBoard"></div>
     </div>
 
-    <div class="section">
+    <div class="section section-admin">
       <h2>Get your link</h2>
-      <p class="hint">Click below to turn this into a link you can share. Anyone with the link can do the exercise — nothing is saved on a server, so keep the link somewhere safe if you want to reuse or edit it later.</p>
+      <p class="hint">Click the button below to turn your lesson into a link. Your students will use the Student Link to do the exercise.</p>
       <button type="button" class="primary" id="generateBtn">Generate link</button>
-      <div id="linkResult">
-        <div class="field">
-          <label for="linkOutput">Share this link with your students</label>
-          <div class="copy-row">
-            <input type="text" id="linkOutput" readonly>
-            <button type="button" id="copyBtn" data-target="linkOutput">Copy</button>
+      <div class="link-columns">
+        <div class="link-col link-col-student" id="studentLinkCol">
+          <h3 class="link-col-label">Student link</h3>
+          <p class="link-col-placeholder" id="studentLinkPlaceholder">Click "Generate link" above to create the link you'll share with students.</p>
+          <div class="field" id="studentLinkField" style="display:none;">
+            <label for="linkOutput">Share this link with your students</label>
+            <div class="copy-row">
+              <input type="text" id="linkOutput" readonly autocomplete="off">
+              <button type="button" id="copyBtn" data-target="linkOutput">Copy</button>
+            </div>
           </div>
         </div>
-        <div class="field">
-          <label for="editLinkOutput">Keep this link for yourself, to make changes later</label>
-          <div class="copy-row">
-            <input type="text" id="editLinkOutput" readonly>
-            <button type="button" id="copyEditBtn" data-target="editLinkOutput">Copy</button>
+        <div class="link-col link-col-edit" id="editLinkCol">
+          <h3 class="link-col-label">Edit link</h3>
+          <p class="link-col-teaser" id="editLinkTeaser">If you'd like to save this lesson so you can make changes later, <button type="button" class="inline-link" id="revealEditLink">click here</button>.</p>
+          <div class="field" id="editLinkField" style="display:none;">
+            <label for="editLinkOutput">Keep this link for yourself, to make changes later</label>
+            <div class="copy-row">
+              <input type="text" id="editLinkOutput" readonly autocomplete="off">
+              <button type="button" id="copyEditBtn" data-target="editLinkOutput">Copy</button>
+            </div>
+            <p class="hint" id="editLinkHint">Keep this link for yourself, to make changes later.</p>
           </div>
         </div>
-        <div id="copyStatus"></div>
       </div>
+      <div id="copyStatus"></div>
     </div>
 
     <div id="markToolbar"><button type="button" id="markBtn">Mark as blank</button></div>
@@ -482,6 +572,7 @@ function render(){
   document.getElementById('generateBtn').addEventListener('click', generateLink);
   document.getElementById('copyBtn').addEventListener('click', copyLink);
   document.getElementById('copyEditBtn').addEventListener('click', copyLink);
+  document.getElementById('revealEditLink').addEventListener('click', revealEditLink);
 
   const editData = loadEditData();
   if (editData){
@@ -495,8 +586,8 @@ function render(){
       addSentenceRow();
     }
     const notice = document.getElementById('editNotice');
-    notice.textContent = `You're editing a previously-created lesson. Make your changes below, then click "Generate link" again for updated links.`;
-    notice.style.display = 'block';
+    notice.innerHTML = `<span class="warn-icon" aria-hidden="true">⚠</span><span>You're working from a previously-created lesson. Editing here won't change the link you already have — if that link is out with students, it will keep showing the old version. When you're done, click "Generate link" below to get a new link for these changes.</span>`;
+    notice.style.display = 'flex';
   } else {
     // Seed with three starter rows so the form isn't intimidatingly empty.
     addSentenceRow();
@@ -760,11 +851,9 @@ function escapeHtml(str){
 /* ---------------- link generation ---------------- */
 function generateLink(){
   const { data, skipped } = buildData();
-  const resultBox = document.getElementById('linkResult');
   const statusEl = document.getElementById('copyStatus');
   if (!data.sentences.length){
     statusEl.textContent = 'Add at least one sentence with a blank marked before generating a link.';
-    resultBox.style.display = 'block';
     document.getElementById('linkOutput').value = '';
     document.getElementById('editLinkOutput').value = '';
     return;
@@ -785,7 +874,27 @@ function generateLink(){
   statusEl.textContent = skipped > 0
     ? `Links ready. (${skipped} sentence${skipped === 1 ? '' : 's'} without a marked blank ${skipped === 1 ? 'was' : 'were'} left out.)`
     : 'Links ready.';
-  resultBox.style.display = 'block';
+
+  // Reveal the student link and "light up" that column — the clear,
+  // unmistakable answer to "did that work, and where's my link."
+  document.getElementById('studentLinkPlaceholder').style.display = 'none';
+  document.getElementById('studentLinkField').style.display = 'block';
+  document.getElementById('studentLinkCol').classList.add('generated');
+
+  // If the edit-link column is already expanded (teacher clicked "click
+  // here" before ever generating), its value just quietly updates in
+  // place — no extra reveal logic needed there.
+}
+
+function revealEditLink(){
+  document.getElementById('editLinkTeaser').style.display = 'none';
+  document.getElementById('editLinkField').style.display = 'block';
+  // If nothing's been generated yet, generate now so the field that's
+  // about to appear isn't empty.
+  if (!document.getElementById('editLinkOutput').value){
+    generateLink();
+  }
+  document.getElementById('editLinkOutput').focus();
 }
 
 function copyLink(e){

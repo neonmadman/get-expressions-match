@@ -394,7 +394,13 @@ function renderSentence(parts){
   return parts.map(p => {
     if (p.isBlank){
       blankCount++;
-      return `<span class="blank-wrap"><input class="blank" type="text" aria-label="Blank ${blankCount}"><button type="button" class="clear-blank" aria-label="Clear answer for blank ${blankCount}">×</button></span>`;
+      // A random, non-semantic name/autocomplete pair — Chrome will offer
+      // its saved Address/Payment autofill on a plain unlabeled text input
+      // if there's nothing telling it not to, even with autocomplete="off"
+      // alone in some cases. A name Chrome can't pattern-match against any
+      // known field type is the reliable way to suppress it.
+      const rand = Math.random().toString(36).slice(2, 10);
+      return `<span class="blank-wrap"><input class="blank" type="text" name="blank-${rand}" autocomplete="off" aria-label="Blank ${blankCount}"><button type="button" class="clear-blank" aria-label="Clear answer for blank ${blankCount}">×</button></span>`;
     }
     return escapeHtml(p.text);
   }).join('');
