@@ -2,10 +2,20 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
 <title>Exercise 2 Concept — Fill in the Gaps</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<script>
+/* lz-string 1.5.0 — vendored directly (not loaded from a CDN) so this page
+   works fully offline and never silently falls back to demo content just
+   because a remote script failed to load (e.g. no internet connection,
+   a school network blocking external scripts, or a browser's local-file
+   security restrictions when opened as a file:// page). MIT licensed:
+   https://github.com/pieroxy/lz-string */
+var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
+</script>
 </head>
 <body>
 
@@ -13,49 +23,81 @@
 
 <script>
 /* ==========================================================================
-   CONCEPT MOCKUP ONLY — 4 of 10 sentences, enough to show the mechanic.
-   No drag-and-drop: just typed blanks, plus a small reference badge
-   showing which of the 10 Exercise 1 expressions each sentence uses.
-   Visual language matches the Exercise 1 build (get-expressions-match):
-   same palette, accessible header color, circle numbering, rem-based
-   sizing with the A-/A/A+ scale control.
+   DATA — this is the ONLY thing that changes between lessons. It's either
+   the built-in default below, or it's decoded from the ?d= URL param
+   (produced by edit.html). See loadData() further down.
+
+   Shape:
+   {
+     type: "fillblank",
+     header: { title, subtitle },
+     sentences: [
+       { parts: [ { text, isBlank }, ... ] }   // isBlank chunks render as
+                                                // <input class="blank">;
+                                                // their text is the answer.
+     ],
+     expressions: [ { sentence, bold } ]   // OPTIONAL. Only the built-in
+                                            // default lesson has this — it's
+                                            // the two-column reference panel
+                                            // from Exercise 1. Teacher-made
+                                            // lessons made in edit.html don't
+                                            // set this, so they render a
+                                            // simpler single-column layout.
+   }
    ========================================================================== */
 
-// The full set of 10 Exercise 1 sentences — this is what "Expressions"
-// actually refers to: the numbered sentences with the phrase bolded,
-// shown here as a static reference list, not draggable.
-const EXPRESSIONS = [
-  { n: 1, letter: "a", sentence: "I can't wait to get away.", bold: "get away" },
-  { n: 2, letter: "b", sentence: "I've always wanted to learn how to surf and I'll finally get to do it.", bold: "get to" },
-  { n: 3, letter: "c", sentence: "I couldn't get over just how strong they are.", bold: "couldn't get over" },
-  { n: 4, letter: "d", sentence: "Actually, I got into a bit of trouble once.", bold: "got into" },
-  { n: 5, letter: "e", sentence: "I tried to get hold of it.", bold: "get hold of" },
-  { n: 6, letter: "f", sentence: "It got swept away by the wave.", bold: "got swept away" },
-  { n: 7, letter: "g", sentence: "I soon realized that I wasn't getting anywhere.", bold: "wasn't getting anywhere" },
-  { n: 8, letter: "h", sentence: "I got the feeling I was being pulled out to sea.", bold: "got the feeling" },
-  { n: 9, letter: "i", sentence: "So I waved to get someone's attention.", bold: "get someone's attention" },
-  { n: 10, letter: "j", sentence: "I had a bad experience, but I soon got over it.", bold: "got over" }
-];
+const DEFAULT_DATA = {
+  type: "fillblank",
+  header: {
+    title: "BUILDING SENTENCES WITH PHRASES",
+    subtitle: "Complete the sentences by matching with the correct form of the phrases. Keep an eye out for tense changes!"
+  },
+  sentences: [
+    { parts: [ { text: "She ran out on the road to ", isBlank: false }, { text: "get someone's attention", isBlank: true }, { text: ".", isBlank: false } ] },
+    { parts: [ { text: "They were exhausted and hungry, but after some food and sleep they soon ", isBlank: false }, { text: "got over", isBlank: true }, { text: " the experience.", isBlank: false } ] },
+    { parts: [ { text: "When he saw the same tree for the third time, he began to ", isBlank: false }, { text: "get the feeling", isBlank: true }, { text: " that he was lost.", isBlank: false } ] },
+    { parts: [ { text: "He went on a course about surviving in the woods and ", isBlank: false }, { text: "got to", isBlank: true }, { text: " put into practice his fire-making skills.", isBlank: false } ] },
+    { parts: [ { text: "They decided to ski off the main trail where the snow was fresh, but it was also quite dangerous and they soon ", isBlank: false }, { text: "got into", isBlank: true }, { text: " trouble.", isBlank: false } ] },
+    { parts: [ { text: "The boat was sinking, but we all managed to ", isBlank: false }, { text: "get hold of", isBlank: true }, { text: " a life-jacket.", isBlank: false } ] },
+    { parts: [ { text: "She was crossing the river, but the current was strong and she ", isBlank: false }, { text: "got swept away", isBlank: true }, { text: " by the water.", isBlank: false } ] },
+    { parts: [ { text: "They had been walking for hours, but they'd only walked about two kilometers. They felt like they ", isBlank: false }, { text: "weren't getting anywhere", isBlank: true }, { text: ".", isBlank: false } ] },
+    { parts: [ { text: "They were in such a rush to ", isBlank: false }, { text: "get away", isBlank: true }, { text: " to the mountains, they left without taking sensible walking boots.", isBlank: false } ] },
+    { parts: [ { text: "When they were in the water, they ", isBlank: false }, { text: "couldn't get over", isBlank: true }, { text: " how high the waves were.", isBlank: false } ] }
+  ],
+  expressions: [
+    { sentence: "I can't wait to get away.", bold: "get away" },
+    { sentence: "I've always wanted to learn how to surf and I'll finally get to do it.", bold: "get to" },
+    { sentence: "I couldn't get over just how strong they are.", bold: "couldn't get over" },
+    { sentence: "Actually, I got into a bit of trouble once.", bold: "got into" },
+    { sentence: "I tried to get hold of it.", bold: "get hold of" },
+    { sentence: "It got swept away by the wave.", bold: "got swept away" },
+    { sentence: "I soon realized that I wasn't getting anywhere.", bold: "wasn't getting anywhere" },
+    { sentence: "I got the feeling I was being pulled out to sea.", bold: "got the feeling" },
+    { sentence: "So I waved to get someone's attention.", bold: "get someone's attention" },
+    { sentence: "I had a bad experience, but I soon got over it.", bold: "got over" }
+  ]
+};
 
-// "BLANK" marks the single blank where the whole phrase goes (in its
-// correct tense/form). refExpr is the Exercise 1 expression number —
-// kept here only as an authoring note for you (not displayed).
-// "BLANK" marks the single blank where the whole phrase goes (in its
-// correct tense/form). letter is this phrase's a-j label. refExpr is the
-// Exercise 1 expression number — kept only as an authoring note (not
-// displayed).
-const SENTENCES = [
-  { letter: "a", parts: ["She ran out on the road to ", "BLANK", "."], refExpr: 9 },
-  { letter: "b", parts: ["They were exhausted and hungry, but after some food and sleep they soon ", "BLANK", " the experience."], refExpr: 10 },
-  { letter: "c", parts: ["When he saw the same tree for the third time, he began to ", "BLANK", " that he was lost."], refExpr: 8 },
-  { letter: "d", parts: ["He went on a course about surviving in the woods and ", "BLANK", " put into practice his fire-making skills."], refExpr: 2 },
-  { letter: "e", parts: ["They decided to ski off the main trail where the snow was fresh, but it was also quite dangerous and they soon ", "BLANK", " trouble."], refExpr: 4 },
-  { letter: "f", parts: ["The boat was sinking, but we all managed to ", "BLANK", " a life-jacket."], refExpr: 5 },
-  { letter: "g", parts: ["She was crossing the river, but the current was strong and she ", "BLANK", " by the water."], refExpr: 6 },
-  { letter: "h", parts: ["They had been walking for hours, but they'd only walked about two kilometers. They felt like they ", "BLANK", "."], refExpr: 7 },
-  { letter: "i", parts: ["They were in such a rush to ", "BLANK", " to the mountains, they left without taking sensible walking boots."], refExpr: 1 },
-  { letter: "j", parts: ["When they were in the water, they ", "BLANK", " how high the waves were."], refExpr: 3 }
-];
+function loadData(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const d = params.get('d');
+    if (!d) return DEFAULT_DATA;
+    const json = LZString.decompressFromEncodedURIComponent(d);
+    if (!json) return DEFAULT_DATA;
+    const parsed = JSON.parse(json);
+    if (!parsed || parsed.type !== 'fillblank' || !Array.isArray(parsed.sentences) || parsed.sentences.length === 0){
+      return DEFAULT_DATA;
+    }
+    return parsed;
+  } catch(e){
+    console.warn('Could not load custom lesson data, using default.', e);
+    return DEFAULT_DATA;
+  }
+}
+
+const DATA = loadData();
+const HAS_REFERENCE = Array.isArray(DATA.expressions) && DATA.expressions.length > 0;
 
 const root = document.getElementById('app');
 
@@ -115,6 +157,7 @@ styleTag.textContent = `
   }
 
   .layout{ display:grid; grid-template-columns: 1.2fr 0.8fr; gap: 36px; align-items:start; }
+  .layout.single-col{ grid-template-columns: 1fr; max-width: 760px; margin: 0 auto; }
 
   /* ---------- shared column-header style, matches Exercise 1 ---------- */
   .col-header{
@@ -207,6 +250,10 @@ styleTag.textContent = `
     color: var(--chalk);
   }
 
+  .blank-wrap{
+    position: relative;
+    display: inline-block;
+  }
   input.blank{
     font-family: var(--font-serif);
     font-weight: 600;
@@ -231,6 +278,30 @@ styleTag.textContent = `
     background: linear-gradient(180deg, var(--done-bg), var(--done-bg-2));
     border-color: var(--done-border);
   }
+  /* Room for the clear button once there's an answer to clear. */
+  input.blank.has-value{ padding-right: 28px; }
+  .clear-blank{
+    display: none;
+    position: absolute;
+    top: 50%;
+    right: 4px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1.5px solid var(--done-border);
+    background: #ffffff;
+    color: var(--chalk-dim);
+    font-size: 13px;
+    line-height: 1;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .blank-wrap.has-value .clear-blank{ display: flex; }
+  .clear-blank:hover{ background: var(--coral); border-color: var(--coral); color: #ffffff; }
+  .clear-blank:focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 1px; }
 
   .sentences-col-wrap{}
 
@@ -285,43 +356,62 @@ function autoGrowInput(inp){
   const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
   const minWidth = (window.innerWidth <= 700 ? 7 : 9) * rootPx; // matches the CSS min-width at this breakpoint
   const maxWidth = 30 * rootPx; // generous ceiling — comfortably fits any realistic phrase without runaway growth
-  const desired = Math.max(minWidth, textWidth + 28); // +28 for left/right padding and border
+  // Measure the field's actual padding/border rather than a fixed fudge
+  // number — padding-right grows once the clear button appears, so a
+  // hardcoded constant would start clipping text in the "has-value" state.
+  const chrome = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0)
+    + (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0) + 4;
+  const desired = Math.max(minWidth, textWidth + chrome);
   inp.style.width = Math.min(desired, maxWidth) + 'px';
 }
 
+// DATA can now come from a teacher's own typed text (via edit.html), not
+// just the fixed demo content — so anything from it that lands inside
+// innerHTML needs escaping, or stray <, >, &, or " characters could
+// corrupt the markup (or, for attribute contexts, break out of the
+// attribute entirely).
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function boldify(sentence, boldPhrase){
-  if (!boldPhrase) return sentence;
+  if (!boldPhrase) return escapeHtml(sentence);
   const idx = sentence.indexOf(boldPhrase);
-  if (idx === -1) return sentence;
+  if (idx === -1) return escapeHtml(sentence);
   const before = sentence.slice(0, idx);
   const match = sentence.slice(idx, idx + boldPhrase.length);
   const after = sentence.slice(idx + boldPhrase.length);
-  return `${before}<strong>${match}</strong>${after}`;
+  return `${escapeHtml(before)}<strong>${escapeHtml(match)}</strong>${escapeHtml(after)}`;
 }
 
 function renderSentence(parts){
   let blankCount = 0;
   return parts.map(p => {
-    if (p === "BLANK"){
+    if (p.isBlank){
       blankCount++;
-      return `<input class="blank" type="text" aria-label="Blank ${blankCount}">`;
+      return `<span class="blank-wrap"><input class="blank" type="text" aria-label="Blank ${blankCount}"><button type="button" class="clear-blank" aria-label="Clear answer for blank ${blankCount}">×</button></span>`;
     }
-    return p;
+    return escapeHtml(p.text);
   }).join('');
 }
 
 function render(){
   root.innerHTML = `
     <header>
-      <h1>BUILDING SENTENCES WITH PHRASES</h1>
-      <p class="subtitle">Complete the sentences by matching with the correct form of the phrases. Keep an eye out for tense changes!</p>
+      <h1>${escapeHtml(DATA.header.title)}</h1>
+      <p class="subtitle">${escapeHtml(DATA.header.subtitle)}</p>
     </header>
     <div class="board">
-      <div class="layout">
+      <div class="layout${HAS_REFERENCE ? '' : ' single-col'}">
         <div class="sentences-col-wrap">
           <h2 class="col-header">Phrases</h2>
           <div class="sentences-col">
-            ${SENTENCES.map((s, i) => `
+            ${DATA.sentences.map((s, i) => `
               <div class="row">
                 <span class="badge-circle">${i+1}</span>
                 <span class="sentence-text">${renderSentence(s.parts)}</span>
@@ -329,17 +419,18 @@ function render(){
             `).join('')}
           </div>
         </div>
+        ${HAS_REFERENCE ? `
         <div class="ref-panel">
           <h2 class="col-header">Expressions</h2>
           <div class="ref-list">
-            ${EXPRESSIONS.map(ex => `
+            ${DATA.expressions.map((ex, i) => `
               <div class="ref-item">
-                <span class="letter-label">${ex.letter})</span>
+                <span class="letter-label">${String.fromCharCode(97 + i)})</span>
                 <span>${boldify(ex.sentence, ex.bold)}</span>
               </div>
             `).join('')}
           </div>
-        </div>
+        </div>` : ''}
       </div>
     </div>
     <div class="footer-bar">
@@ -351,11 +442,32 @@ function render(){
     </div>
   `;
   document.querySelectorAll('input.blank').forEach(inp => {
+    const wrap = inp.closest('.blank-wrap');
     inp.addEventListener('input', () => {
-      inp.classList.toggle('has-value', inp.value.trim().length > 0);
+      const hasValue = inp.value.trim().length > 0;
+      inp.classList.toggle('has-value', hasValue);
+      if (wrap) wrap.classList.toggle('has-value', hasValue);
       autoGrowInput(inp);
     });
+    inp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        inp.blur(); // reuses the existing ":not(:focus)" rule that turns a filled blank gold
+      }
+    });
     autoGrowInput(inp); // set correct initial width even before typing starts
+  });
+  document.querySelectorAll('.clear-blank').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const wrap = btn.closest('.blank-wrap');
+      const inp = wrap?.querySelector('input.blank');
+      if (!inp) return;
+      inp.value = '';
+      inp.classList.remove('has-value');
+      wrap.classList.remove('has-value');
+      autoGrowInput(inp);
+      inp.focus();
+    });
   });
   const clamp = (v) => Math.min(150, Math.max(70, v));
   const apply = () => {

@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Own Exercise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Lora:wght@500;600;700&display=swap" rel="stylesheet">
+<script>
+/* lz-string 1.5.0 — vendored directly (not loaded from a CDN) so this page
+   works fully offline and never silently falls back to demo content just
+   because a remote script failed to load (e.g. no internet connection,
+   a school network blocking external scripts, or a browser's local-file
+   security restrictions when opened as a file:// page). MIT licensed:
+   https://github.com/pieroxy/lz-string */
+var LZString=function(){var r=String.fromCharCode,o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",n="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$",e={};function t(r,o){if(!e[r]){e[r]={};for(var n=0;n<r.length;n++)e[r][r.charAt(n)]=n}return e[r][o]}var i={compressToBase64:function(r){if(null==r)return"";var n=i._compress(r,6,function(r){return o.charAt(r)});switch(n.length%4){default:case 0:return n;case 1:return n+"===";case 2:return n+"==";case 3:return n+"="}},decompressFromBase64:function(r){return null==r?"":""==r?null:i._decompress(r.length,32,function(n){return t(o,r.charAt(n))})},compressToUTF16:function(o){return null==o?"":i._compress(o,15,function(o){return r(o+32)})+" "},decompressFromUTF16:function(r){return null==r?"":""==r?null:i._decompress(r.length,16384,function(o){return r.charCodeAt(o)-32})},compressToUint8Array:function(r){for(var o=i.compress(r),n=new Uint8Array(2*o.length),e=0,t=o.length;e<t;e++){var s=o.charCodeAt(e);n[2*e]=s>>>8,n[2*e+1]=s%256}return n},decompressFromUint8Array:function(o){if(null==o)return i.decompress(o);for(var n=new Array(o.length/2),e=0,t=n.length;e<t;e++)n[e]=256*o[2*e]+o[2*e+1];var s=[];return n.forEach(function(o){s.push(r(o))}),i.decompress(s.join(""))},compressToEncodedURIComponent:function(r){return null==r?"":i._compress(r,6,function(r){return n.charAt(r)})},decompressFromEncodedURIComponent:function(r){return null==r?"":""==r?null:(r=r.replace(/ /g,"+"),i._decompress(r.length,32,function(o){return t(n,r.charAt(o))}))},compress:function(o){return i._compress(o,16,function(o){return r(o)})},_compress:function(r,o,n){if(null==r)return"";var e,t,i,s={},u={},a="",p="",c="",l=2,f=3,h=2,d=[],m=0,v=0;for(i=0;i<r.length;i+=1)if(a=r.charAt(i),Object.prototype.hasOwnProperty.call(s,a)||(s[a]=f++,u[a]=!0),p=c+a,Object.prototype.hasOwnProperty.call(s,p))c=p;else{if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++),s[p]=f++,c=String(a)}if(""!==c){if(Object.prototype.hasOwnProperty.call(u,c)){if(c.charCodeAt(0)<256){for(e=0;e<h;e++)m<<=1,v==o-1?(v=0,d.push(n(m)),m=0):v++;for(t=c.charCodeAt(0),e=0;e<8;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}else{for(t=1,e=0;e<h;e++)m=m<<1|t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t=0;for(t=c.charCodeAt(0),e=0;e<16;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1}0==--l&&(l=Math.pow(2,h),h++),delete u[c]}else for(t=s[c],e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;0==--l&&(l=Math.pow(2,h),h++)}for(t=2,e=0;e<h;e++)m=m<<1|1&t,v==o-1?(v=0,d.push(n(m)),m=0):v++,t>>=1;for(;;){if(m<<=1,v==o-1){d.push(n(m));break}v++}return d.join("")},decompress:function(r){return null==r?"":""==r?null:i._decompress(r.length,32768,function(o){return r.charCodeAt(o)})},_decompress:function(o,n,e){var t,i,s,u,a,p,c,l=[],f=4,h=4,d=3,m="",v=[],g={val:e(0),position:n,index:1};for(t=0;t<3;t+=1)l[t]=t;for(s=0,a=Math.pow(2,2),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;c=r(s);break;case 2:return""}for(l[3]=c,i=c,v.push(c);;){if(g.index>o)return"";for(s=0,a=Math.pow(2,d),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;switch(c=s){case 0:for(s=0,a=Math.pow(2,8),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 1:for(s=0,a=Math.pow(2,16),p=1;p!=a;)u=g.val&g.position,g.position>>=1,0==g.position&&(g.position=n,g.val=e(g.index++)),s|=(u>0?1:0)*p,p<<=1;l[h++]=r(s),c=h-1,f--;break;case 2:return v.join("")}if(0==f&&(f=Math.pow(2,d),d++),l[c])m=l[c];else{if(c!==h)return null;m=i+i.charAt(0)}v.push(m),l[h++]=i+m.charAt(0),i=m,0==--f&&(f=Math.pow(2,d),d++)}}};return i}();"function"==typeof define&&define.amd?define(function(){return LZString}):"undefined"!=typeof module&&null!=module?module.exports=LZString:"undefined"!=typeof angular&&null!=angular&&angular.module("LZString",[]).factory("LZString",function(){return LZString});
+</script>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   Teacher-facing builder for the "fillblank" exercise type (Exercise 02).
+
+   Output shape (matches what phrases.html reads back from ?d=):
+   { type: "fillblank", header: { title, subtitle }, sentences: [ { parts } ] }
+
+   The "Match the Meanings" (Exercise 01) type is shown as a disabled
+   option in the type switcher below so that, once its own builder exists,
+   a teacher just clicks to switch — no separate page to discover.
+   ========================================================================== */
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  html{ font-size: 100%; }
+  :root{
+    --board:#e8f3fc;
+    --board-line: rgba(15,30,45,0.09);
+    --chalk:#12181f;
+    --chalk-dim: rgba(18,24,31,0.62);
+    --accent:#1f6fa8;
+    --coral:#c9463c;
+    --done-bg: #FEEABE; --done-bg-2: #FBDFA0; --done-border: #D9AF5C;
+    --header-accent: #4679AA;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-serif: 'Lora', Georgia, serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    /* Type scale — every font-size in this file is one of these. Base is
+       1rem (16px); nothing on the page should ever render smaller than
+       --fs-xs or be an ad-hoc value outside this scale. */
+    --fs-xs: 0.75rem;    /* 12px — badges, meta labels */
+    --fs-sm: 0.875rem;   /* 14px — hints, help text, form labels */
+    --fs-base: 1rem;     /* 16px — body copy, form field text */
+    --fs-lg: 1.125rem;   /* 18px — section headings, sentence text */
+    --fs-xl: 1.25rem;    /* 20px — preview heading */
+    --fs-2xl: 1.5rem;    /* 24px */
+    --fs-3xl: 1.875rem;  /* 30px — page title, upper bound */
+    /* A border/background pairing for form fields that meets WCAG 1.4.11
+       (non-text contrast, >=3:1 against the white card background). The
+       previous rgba(31,111,168,0.4) border, once composited over white,
+       came out too pale to register as a visible boundary — this is the
+       fix for "impossible to see the field." */
+    --field-border: #5C88AF;
+    --field-border-focus: var(--accent);
+    --field-bg: #F4F8FC;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.7), transparent 55%), var(--board);
+    background-attachment: fixed;
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    color: var(--chalk);
+    padding: 28px 16px 80px;
+  }
+  #app{ max-width: 980px; margin: 0 auto; }
+
+  header{ text-align:center; margin-bottom: 22px; }
+  h1{
+    font-weight: 800; letter-spacing: 0.04em;
+    font-size: clamp(1.5rem, 1.25rem + 1vw, var(--fs-3xl));
+    line-height: 1.2; margin: 0 0 8px;
+  }
+  .subtitle{ font-size: var(--fs-base); color: var(--chalk-dim); margin: 0; max-width: 60ch; margin-inline: auto; }
+
+  /* Screen-reader-only utility: visually hidden but still announced,
+     used for the drag-and-drop reorder status region below. */
+  .sr-only{
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  /* ---------- exercise type switcher ---------- */
+  .type-switcher{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 22px 0 28px;
+  }
+  .type-card{
+    border: 1.5px solid rgba(31,111,168,0.4);
+    border-radius: 12px;
+    background: #ffffff;
+    padding: 16px 18px;
+    text-align:left;
+    cursor: pointer;
+    font-family: var(--font-body);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .type-card.active{
+    border-color: var(--accent);
+    border-width: 2px;
+    box-shadow: 0 2px 10px rgba(31,111,168,0.15);
+  }
+  .type-card:disabled{
+    cursor: default;
+    opacity: 0.55;
+  }
+  .type-card .type-name{
+    font-weight: 700;
+    font-size: var(--fs-base);
+    display:flex;
+    align-items:center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .type-card .type-desc{ font-size: var(--fs-sm); color: var(--chalk-dim); }
+  .soon-badge{
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--header-accent);
+    background: rgba(70,121,170,0.12);
+    border-radius: 20px;
+    padding: 2px 8px;
+  }
+
+  /* ---------- form sections ---------- */
+  .section{
+    border: 1.5px dashed rgba(31,111,168,0.4);
+    border-radius: 14px;
+    padding: 22px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15,30,45,0.06);
+    margin-bottom: 22px;
+  }
+  /* This is an <h2> — the direct, un-skipped heading level under the
+     page's <h1> — sized on our own scale rather than a browser default.
+     It was previously 0.9rem, smaller than body text, which is why it
+     was hard to register as a heading at all; --fs-lg fixes that while
+     keeping the tag semantically correct (no skipped heading levels,
+     which matters for screen-reader users navigating by heading). */
+  .section h2{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: var(--fs-lg);
+    color: var(--header-accent);
+    margin: 0 0 6px;
+  }
+  .section .hint{ font-size: var(--fs-sm); color: var(--chalk-dim); margin: 0 0 16px; }
+
+  .edit-notice{
+    background: rgba(31,111,168,0.08);
+    border: 1.5px solid rgba(31,111,168,0.3);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: var(--fs-sm);
+    color: var(--chalk);
+    margin-bottom: 20px;
+  }
+
+  label{
+    display:block;
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--chalk-dim);
+    margin-bottom: 6px;
+  }
+  input[type="text"], textarea{
+    width: 100%;
+    font-family: var(--font-body);
+    font-size: var(--fs-base);
+    padding: 10px 12px;
+    border: 1.5px solid var(--field-border);
+    border-radius: 8px;
+    background: var(--field-bg);
+    color: var(--chalk);
+  }
+  textarea{
+    resize: vertical;
+    min-height: 4.5rem;
+    line-height: 1.5;
+    font-family: inherit;
+  }
+  input[type="text"]::placeholder, textarea::placeholder{
+    color: rgba(18,24,31,0.5);
+  }
+  input[type="text"]:focus, textarea:focus, [contenteditable]:focus{
+    outline: none;
+    border-color: var(--field-border-focus);
+    border-width: 2px;
+    background: #ffffff;
+    box-shadow: 0 0 0 3px rgba(31,111,168,0.15);
+  }
+  .field{ margin-bottom: 16px; }
+  .field:last-child{ margin-bottom: 0; }
+
+  /* ---------- sentence editor rows ---------- */
+  .sentence-row{
+    position: relative;
+    border: 1.5px solid rgba(31,111,168,0.4);
+    border-radius: 12px;
+    padding: 16px 44px 16px 52px;
+    margin-bottom: 14px;
+    background: #fbfdff;
+  }
+  .sentence-row-head{
+    display:flex; align-items:center; gap: 10px; margin-bottom: 8px;
+  }
+  .row-controls{
+    position: absolute;
+    left: 10px;
+    top: 16px;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .move-btn{
+    width: 28px; height: 26px; padding: 0;
+    border: 1.5px solid rgba(31,111,168,0.35);
+    border-radius: 5px;
+    background: #fff;
+    color: var(--chalk-dim);
+    font-size: var(--fs-sm);
+    line-height: 1;
+    display:flex; align-items:center; justify-content:center;
+    cursor: pointer;
+  }
+  .move-btn:hover:not(:disabled){ border-color: var(--accent); color: var(--accent); background: rgba(31,111,168,0.06); }
+  .move-btn:disabled{ opacity: 0.35; cursor: default; }
+  .sentence-num{
+    flex-shrink:0; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--header-accent); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size: var(--fs-xs); font-weight: 700;
+  }
+  .sentence-editor{
+    font-family: var(--font-serif);
+    font-size: var(--fs-lg);
+    line-height: 1.7;
+    min-height: 1.7em;
+    padding: 10px 12px;
+    border: 1.5px solid var(--field-border);
+    border-radius: 8px;
+    background: var(--field-bg);
+  }
+  .sentence-editor:empty:before{
+    content: attr(data-placeholder);
+    color: rgba(18,24,31,0.5);
+  }
+  .sentence-editor mark.blank-mark{
+    font-weight: 700;
+    background: linear-gradient(180deg, var(--done-bg), var(--done-bg-2));
+    border: 1.5px solid var(--done-border);
+    border-radius: 5px;
+    padding: 1px 6px;
+    cursor: pointer;
+  }
+  .sentence-help{
+    font-size: var(--fs-sm);
+    color: var(--chalk-dim);
+    margin-top: 6px;
+  }
+  .sentence-help.warn{ color: var(--coral); }
+  .remove-sentence{
+    position:absolute; top: 10px; right: 10px;
+    width: 26px; height: 26px; border-radius: 50%;
+    border: 1.5px solid rgba(31,111,168,0.4);
+    background:#fff; color: var(--chalk-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size: 15px; line-height:1; padding:0;
+  }
+  .remove-sentence:hover{ background: var(--coral); border-color: var(--coral); color:#fff; }
+
+  #addSentenceBtn{ width:100%; }
+
+  /* ---------- floating "mark as blank" toolbar ---------- */
+  #markToolbar{
+    position: fixed;
+    z-index: 1000;
+    display:none;
+    transform: translate(-50%, -110%);
+  }
+  #markToolbar button{
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 8px 12px;
+    border-radius: 7px;
+    border: none;
+    background: var(--chalk);
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(15,30,45,0.3);
+  }
+  #markToolbar button:hover{ background: var(--accent); }
+
+  /* ---------- generic buttons ---------- */
+  button{
+    font-family: var(--font-mono); font-size: var(--fs-sm); letter-spacing: 0.05em; text-transform: uppercase;
+    padding: 10px 18px; border-radius: 8px; border: 1.5px solid rgba(31,111,168,0.4);
+    background: transparent; color: var(--chalk); cursor: pointer; transition: all .15s;
+  }
+  button:hover{ border-color: var(--accent); color: var(--accent); background: rgba(31,111,168,0.06); }
+  button:focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; }
+  button.primary{
+    background: var(--accent); color:#fff; border-color: var(--accent);
+    font-weight: 700; width: 100%; padding: 14px 18px; font-size: var(--fs-base);
+  }
+  button.primary:hover{ background: #185a87; color:#fff; }
+
+  /* ---------- live preview (mirrors phrases.html's single-column look) --- */
+  .preview-board{
+    border: 1.5px dashed rgba(31,111,168,0.4);
+    border-radius: 14px;
+    padding: 22px;
+    background: var(--board);
+  }
+  .preview-board h3{
+    font-weight: 800; letter-spacing: 0.03em; font-size: var(--fs-xl); margin: 0 0 4px; text-align:center;
+  }
+  .preview-board .p-sub{ font-size: var(--fs-sm); color: var(--chalk-dim); text-align:center; margin: 0 0 18px; }
+  .preview-empty{
+    font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--chalk-dim);
+    text-transform: uppercase; letter-spacing: 0.05em; text-align:center; padding: 20px 0;
+  }
+  .preview-row{
+    display:flex; align-items:center; gap: 12px;
+    background:#fbfdff; border:1.5px solid rgba(31,111,168,0.4); border-radius:12px;
+    padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(15,30,45,0.06);
+  }
+  .preview-row:last-child{ margin-bottom:0; }
+  .preview-num{
+    flex-shrink:0; width: 26px; height: 26px; border-radius: 50%;
+    background: var(--header-accent); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size: var(--fs-xs); font-weight: 700;
+  }
+  .preview-text{ font-family: var(--font-serif); font-size: var(--fs-lg); line-height: 1.7; }
+  .preview-blank{
+    display:inline-block; min-width: 6rem; border-bottom: 2px solid var(--accent);
+    color: transparent; user-select:none;
+  }
+
+  /* ---------- link result ---------- */
+  #linkResult{ display:none; margin-top: 14px; }
+  #linkResult .field{ margin-bottom: 10px; }
+  .copy-row{ display:flex; gap: 10px; }
+  .copy-row input{ flex:1; }
+  #copyStatus{ font-size: var(--fs-sm); color: var(--accent); margin-top: 6px; min-height: 1.2em; }
+
+  @media (max-width: 700px){
+    .type-switcher{ grid-template-columns: 1fr; }
+  }
+`;
+document.head.appendChild(styleTag);
+
+/* ---------------- state ---------------- */
+let sentenceCount = 0;
+
+// Checks this page's own URL for a "?d=" param (the private edit link
+// produced by generateLink()) and decodes it back into the same DATA
+// shape phrases.html reads. This only ever produces plain strings/arrays
+// via JSON.parse — JSON.parse cannot execute code, so a hand-crafted or
+// corrupted link can at worst fail to parse (caught below) or produce
+// unexpected text, never unexpected behavior.
+function loadEditData(){
+  try{
+    const params = new URLSearchParams(location.search);
+    const d = params.get('d');
+    if (!d) return null;
+    const json = LZString.decompressFromEncodedURIComponent(d);
+    if (!json) return null;
+    const parsed = JSON.parse(json);
+    if (!parsed || parsed.type !== 'fillblank' || !Array.isArray(parsed.sentences)) return null;
+    return parsed;
+  } catch(e){
+    console.warn('Could not load this lesson for editing, starting blank.', e);
+    return null;
+  }
+}
+
+function render(){
+  root.innerHTML = `
+    <header>
+      <h1>Build Your Own Exercise</h1>
+      <p class="subtitle">Fill in the details below and get a link to share with your students. No coding needed.</p>
+    </header>
+
+    <div id="editNotice" class="edit-notice" style="display:none;"></div>
+
+    <div class="type-switcher">
+      <button type="button" class="type-card active" id="typeFillblank" aria-pressed="true">
+        <div class="type-name">Fill in the Blank</div>
+        <div class="type-desc">Students type the missing word or phrase into each sentence.</div>
+      </button>
+      <button type="button" class="type-card" disabled aria-disabled="true">
+        <div class="type-name">Match the Meanings <span class="soon-badge">Coming soon</span></div>
+        <div class="type-desc">Students match each expression to its meaning.</div>
+      </button>
+    </div>
+
+    <div class="section">
+      <h2>Title</h2>
+      <div class="field">
+        <label for="titleInput">Exercise title</label>
+        <input type="text" id="titleInput" placeholder="e.g. Building Sentences with Phrases">
+      </div>
+      <div class="field">
+        <label for="subtitleInput">Instructions for students</label>
+        <textarea id="subtitleInput" rows="2" placeholder="e.g. Complete the sentences with the correct word or phrase."></textarea>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Sentences</h2>
+      <p class="hint">Type each sentence, then select the word or phrase you want turned into a blank and click "Mark as blank." Use the up/down arrows to reorder sentences.</p>
+      <div id="sentenceList"></div>
+      <button type="button" id="addSentenceBtn">+ Add sentence</button>
+      <div id="reorderStatus" class="sr-only" aria-live="polite"></div>
+    </div>
+
+    <div class="section">
+      <h2>Preview</h2>
+      <p class="hint">This is what your students will see.</p>
+      <div class="preview-board" id="previewBoard"></div>
+    </div>
+
+    <div class="section">
+      <h2>Get your link</h2>
+      <p class="hint">Click below to turn this into a link you can share. Anyone with the link can do the exercise — nothing is saved on a server, so keep the link somewhere safe if you want to reuse or edit it later.</p>
+      <button type="button" class="primary" id="generateBtn">Generate link</button>
+      <div id="linkResult">
+        <div class="field">
+          <label for="linkOutput">Share this link with your students</label>
+          <div class="copy-row">
+            <input type="text" id="linkOutput" readonly>
+            <button type="button" id="copyBtn" data-target="linkOutput">Copy</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="editLinkOutput">Keep this link for yourself, to make changes later</label>
+          <div class="copy-row">
+            <input type="text" id="editLinkOutput" readonly>
+            <button type="button" id="copyEditBtn" data-target="editLinkOutput">Copy</button>
+          </div>
+        </div>
+        <div id="copyStatus"></div>
+      </div>
+    </div>
+
+    <div id="markToolbar"><button type="button" id="markBtn">Mark as blank</button></div>
+  `;
+
+  document.getElementById('titleInput').addEventListener('input', updatePreview);
+  document.getElementById('subtitleInput').addEventListener('input', updatePreview);
+  document.getElementById('addSentenceBtn').addEventListener('click', () => addSentenceRow());
+  document.getElementById('generateBtn').addEventListener('click', generateLink);
+  document.getElementById('copyBtn').addEventListener('click', copyLink);
+  document.getElementById('copyEditBtn').addEventListener('click', copyLink);
+
+  const editData = loadEditData();
+  if (editData){
+    // .value assignment is always treated as plain text by the browser,
+    // never as markup — safe regardless of what a shared link contains.
+    document.getElementById('titleInput').value = editData.header?.title || '';
+    document.getElementById('subtitleInput').value = editData.header?.subtitle || '';
+    if (editData.sentences.length){
+      editData.sentences.forEach(s => addSentenceRow(s.parts));
+    } else {
+      addSentenceRow();
+    }
+    const notice = document.getElementById('editNotice');
+    notice.textContent = `You're editing a previously-created lesson. Make your changes below, then click "Generate link" again for updated links.`;
+    notice.style.display = 'block';
+  } else {
+    // Seed with three starter rows so the form isn't intimidatingly empty.
+    addSentenceRow();
+    addSentenceRow();
+    addSentenceRow();
+  }
+  updatePreview();
+  setupMarkToolbar();
+}
+
+/* ---------------- sentence rows ---------------- */
+// `parts`, when given, comes from a decoded "?d=" link (see loadEditData)
+// — i.e. from someone else's browser, not necessarily trustworthy. Every
+// piece of it is inserted below via textContent / createTextNode, never
+// innerHTML, so it is always treated as literal text and can never be
+// interpreted as markup or script, no matter what characters it contains.
+function addSentenceRow(parts){
+  sentenceCount++;
+  const id = 'sent-' + sentenceCount;
+  const list = document.getElementById('sentenceList');
+  const row = document.createElement('div');
+  row.className = 'sentence-row';
+  row.dataset.rowId = id;
+  row.innerHTML = `
+    <div class="row-controls">
+      <button type="button" class="move-btn move-up" aria-label="Move this sentence up">↑</button>
+      <button type="button" class="move-btn move-down" aria-label="Move this sentence down">↓</button>
+    </div>
+    <button type="button" class="remove-sentence" aria-label="Remove this sentence">×</button>
+    <div class="sentence-row-head">
+      <span class="sentence-num"></span>
+    </div>
+    <div class="sentence-editor" contenteditable="true" data-placeholder="Type here"></div>
+    <div class="sentence-help">Select a word or phrase, then click "Mark as blank."</div>
+  `;
+  list.appendChild(row);
+
+  const editor = row.querySelector('.sentence-editor');
+  if (Array.isArray(parts) && parts.length){
+    parts.forEach(p => {
+      if (p.isBlank){
+        const mark = document.createElement('mark');
+        mark.className = 'blank-mark';
+        mark.setAttribute('contenteditable', 'false');
+        mark.title = 'Click to remove this blank';
+        mark.textContent = p.text; // textContent — always literal, never parsed as HTML
+        editor.appendChild(mark);
+      } else if (p.text) {
+        editor.appendChild(document.createTextNode(p.text)); // literal text node
+      }
+    });
+  }
+
+  row.querySelector('.remove-sentence').addEventListener('click', () => {
+    row.remove();
+    renumberRows();
+    updatePreview();
+  });
+  editor.addEventListener('input', updatePreview);
+  editor.addEventListener('click', (e) => {
+    const mark = e.target.closest('mark.blank-mark');
+    if (mark){ unmarkBlank(mark); }
+  });
+
+  row.querySelector('.move-up').addEventListener('click', () => moveRow(row, -1));
+  row.querySelector('.move-down').addEventListener('click', () => moveRow(row, 1));
+
+  renumberRows();
+}
+
+// Reorders a row by swapping it with its previous/next sibling. This is
+// the keyboard- and screen-reader-accessible path — native HTML5 drag
+// and drop (below) responds to mouse/touch only, so these buttons exist
+// so reordering is fully possible without a pointer device.
+function moveRow(row, direction){
+  const sibling = direction < 0 ? row.previousElementSibling : row.nextElementSibling;
+  if (!sibling) return;
+  const list = row.parentElement;
+  if (direction < 0) list.insertBefore(row, sibling);
+  else list.insertBefore(sibling, row);
+  renumberRows();
+  updatePreview();
+  const newIndex = Array.from(list.children).indexOf(row) + 1;
+  const total = list.children.length;
+  announce(`Sentence moved to position ${newIndex} of ${total}.`);
+  row.querySelector(direction < 0 ? '.move-up' : '.move-down').focus();
+}
+
+function announce(message){
+  const el = document.getElementById('reorderStatus');
+  if (el) el.textContent = message;
+}
+
+function renumberRows(){
+  const rows = document.querySelectorAll('.sentence-row');
+  rows.forEach((row, i) => {
+    row.querySelector('.sentence-num').textContent = i + 1;
+    row.querySelector('.move-up').disabled = (i === 0);
+    row.querySelector('.move-down').disabled = (i === rows.length - 1);
+  });
+}
+
+/* ---------------- select-to-mark-blank ---------------- */
+function setupMarkToolbar(){
+  const toolbar = document.getElementById('markToolbar');
+  const markBtn = document.getElementById('markBtn');
+  let activeRange = null;
+
+  document.addEventListener('selectionchange', () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0){
+      toolbar.style.display = 'none';
+      activeRange = null;
+      return;
+    }
+    const range = sel.getRangeAt(0);
+    const editor = range.commonAncestorContainer.nodeType === 1
+      ? range.commonAncestorContainer.closest?.('.sentence-editor')
+      : range.commonAncestorContainer.parentElement?.closest('.sentence-editor');
+    if (!editor || !range.toString().trim()){
+      toolbar.style.display = 'none';
+      activeRange = null;
+      return;
+    }
+    // Don't allow marking a selection that already crosses into an
+    // existing mark — keeps extraction simple and avoids nested marks.
+    if (range.startContainer.parentElement?.closest('mark.blank-mark') ||
+        range.endContainer.parentElement?.closest('mark.blank-mark')){
+      toolbar.style.display = 'none';
+      activeRange = null;
+      return;
+    }
+    activeRange = range.cloneRange();
+    const rect = range.getBoundingClientRect();
+    toolbar.style.left = (rect.left + rect.width / 2) + 'px';
+    toolbar.style.top = rect.top + 'px';
+    toolbar.style.display = 'block';
+  });
+
+  markBtn.addEventListener('click', () => {
+    if (!activeRange) return;
+    // Guard against the row having been deleted (via its × button) between
+    // the selection being made and the button being clicked — without
+    // this, deleteContents()/insertNode() would throw on a detached range.
+    if (!document.body.contains(activeRange.startContainer)){
+      toolbar.style.display = 'none';
+      activeRange = null;
+      return;
+    }
+    const text = activeRange.toString();
+    if (!text.trim()){ return; }
+    const mark = document.createElement('mark');
+    mark.className = 'blank-mark';
+    mark.setAttribute('contenteditable', 'false');
+    mark.title = 'Click to remove this blank';
+    mark.textContent = text;
+    activeRange.deleteContents();
+    activeRange.insertNode(mark);
+    // Editor that we just edited needs its preview + help text refreshed.
+    const editor = mark.closest('.sentence-editor');
+    window.getSelection().removeAllRanges();
+    toolbar.style.display = 'none';
+    activeRange = null;
+    if (editor) editor.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+
+function unmarkBlank(mark){
+  const editor = mark.closest('.sentence-editor');
+  const textNode = document.createTextNode(mark.textContent);
+  mark.replaceWith(textNode);
+  // Merge the restored text back into its neighboring text nodes so the
+  // editor doesn't end up fragmented into multiple text nodes at the same
+  // spot — keeps future selections and extraction simple.
+  if (editor) editor.normalize();
+  updatePreview();
+}
+
+/* ---------------- extract data from the DOM ---------------- */
+function extractParts(editor){
+  const parts = [];
+  editor.childNodes.forEach(node => {
+    if (node.nodeType === Node.TEXT_NODE){
+      if (node.textContent.length) parts.push({ text: node.textContent, isBlank: false });
+    } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName === 'MARK'){
+      if (node.textContent.length) parts.push({ text: node.textContent, isBlank: true });
+    } else if (node.nodeType === Node.ELEMENT_NODE){
+      // Best-effort: treat any other stray element (e.g. a pasted <div> or
+      // <br>) as plain text so a paste never silently loses content.
+      if (node.textContent.length) parts.push({ text: node.textContent, isBlank: false });
+    }
+  });
+  return parts;
+}
+
+function buildData(){
+  const title = document.getElementById('titleInput').value.trim() || 'Untitled Exercise';
+  const subtitle = document.getElementById('subtitleInput').value.trim();
+  const rows = Array.from(document.querySelectorAll('.sentence-row'));
+  const sentences = [];
+  let skipped = 0;
+  rows.forEach(row => {
+    const editor = row.querySelector('.sentence-editor');
+    const helpEl = row.querySelector('.sentence-help');
+    const parts = extractParts(editor);
+    const hasBlank = parts.some(p => p.isBlank);
+    const hasText = parts.some(p => p.text.trim().length);
+    if (!hasText){
+      helpEl.textContent = 'Select a word or phrase, then click "Mark as blank."';
+      helpEl.classList.remove('warn');
+      return; // empty row, silently skip
+    }
+    if (!hasBlank){
+      helpEl.textContent = "This sentence has no blank marked yet, so it won't be included.";
+      helpEl.classList.add('warn');
+      skipped++;
+      return;
+    }
+    helpEl.textContent = 'Looks good.';
+    helpEl.classList.remove('warn');
+    sentences.push({ parts });
+  });
+  return { data: { type: 'fillblank', header: { title, subtitle }, sentences }, skipped };
+}
+
+/* ---------------- live preview ---------------- */
+function updatePreview(){
+  const { data } = buildData();
+  const board = document.getElementById('previewBoard');
+  if (!data.sentences.length){
+    board.innerHTML = `
+      <h3>${escapeHtml(data.header.title)}</h3>
+      <p class="p-sub">${escapeHtml(data.header.subtitle)}</p>
+      <div class="preview-empty">Add a sentence with a blank marked to see it here</div>
+    `;
+    return;
+  }
+  board.innerHTML = `
+    <h3>${escapeHtml(data.header.title)}</h3>
+    <p class="p-sub">${escapeHtml(data.header.subtitle)}</p>
+    ${data.sentences.map((s, i) => `
+      <div class="preview-row">
+        <span class="preview-num">${i + 1}</span>
+        <span class="preview-text">${s.parts.map(p => p.isBlank
+          ? `<span class="preview-blank">${escapeHtml(p.text)}</span>`
+          : escapeHtml(p.text)).join('')}</span>
+      </div>
+    `).join('')}
+  `;
+}
+
+function escapeHtml(str){
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/* ---------------- link generation ---------------- */
+function generateLink(){
+  const { data, skipped } = buildData();
+  const resultBox = document.getElementById('linkResult');
+  const statusEl = document.getElementById('copyStatus');
+  if (!data.sentences.length){
+    statusEl.textContent = 'Add at least one sentence with a blank marked before generating a link.';
+    resultBox.style.display = 'block';
+    document.getElementById('linkOutput').value = '';
+    document.getElementById('editLinkOutput').value = '';
+    return;
+  }
+  // Both links carry the exact same encoded data — only the destination
+  // page differs. phrases.html renders it as an exercise; index.html (via
+  // loadEditData above) reads the same shape back into this form. This
+  // page *is* the site's index.html — the "keep this to edit later" link
+  // points back at itself.
+  const json = JSON.stringify(data);
+  const encoded = LZString.compressToEncodedURIComponent(json);
+  const shareUrl = new URL('phrases.html', window.location.href);
+  shareUrl.search = 'd=' + encoded;
+  const editUrl = new URL('index.html', window.location.href);
+  editUrl.search = 'd=' + encoded;
+  document.getElementById('linkOutput').value = shareUrl.href;
+  document.getElementById('editLinkOutput').value = editUrl.href;
+  statusEl.textContent = skipped > 0
+    ? `Links ready. (${skipped} sentence${skipped === 1 ? '' : 's'} without a marked blank ${skipped === 1 ? 'was' : 'were'} left out.)`
+    : 'Links ready.';
+  resultBox.style.display = 'block';
+}
+
+function copyLink(e){
+  const targetId = e.currentTarget.dataset.target;
+  const input = document.getElementById(targetId);
+  const statusEl = document.getElementById('copyStatus');
+  if (!input.value) return;
+  input.select();
+  navigator.clipboard?.writeText(input.value).then(() => {
+    statusEl.textContent = 'Copied to clipboard!';
+  }).catch(() => {
+    statusEl.textContent = 'Could not copy automatically — the link is selected, so press Ctrl/Cmd+C.';
+  });
+}
+
+render();
+</script>
+</body>
+</html>
