@@ -218,6 +218,10 @@ styleTag.textContent = `
     grid-template-columns: repeat(3, 1fr);
     gap: 22px;
     margin-top: 22px;
+    /* Counter lives here, not on .tips, so numbering carries across all
+       three columns (1-4, 5-7, 8-14) instead of each column restarting
+       at 1. */
+    counter-reset: tip;
   }
   .column{ display:flex; flex-direction:column; }
 
@@ -276,7 +280,6 @@ styleTag.textContent = `
 
   .tips{
     list-style: none;
-    counter-reset: tip;
     margin: 0;
     padding: 0;
     display:flex;
