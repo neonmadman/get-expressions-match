@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Be Wise and Survive — Sort the Titles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   "Sort the Titles" — a brochure-styled variant of the drag-and-drop
+   mechanic used in index.html (match.html). Instead of matching a
+   sentence to a meaning, students drag a TITLE card onto the column of
+   guidelines it belongs to. One title is a permanent decoy: it never has
+   a matching column, the same way a real matching worksheet often
+   includes one extra option so students can't just place-by-elimination.
+
+   Mechanic (drag + click-to-place, keyboard accessible) is intentionally
+   copied from index.html so the interaction feels consistent across the
+   whole site — only the data shape and the visual theme (forest green,
+   photo header) are different.
+   ========================================================================== */
+
+/* ====================== EDIT THIS FOR EACH LESSON ====================== */
+const HEADER_IMAGE = "be-wise-and-survive-header.png";
+const HEADER_IMAGE_ALT = "A foggy forest, with the words Be Wise and Survive";
+const INTRO_TEXT = [
+  "We all enjoy being in the great outdoors. There are lots of amazing environments, but some of them can be quite challenging, even dangerous, and it's important that you think about safety.",
+  "Here are some simple guidelines to help you stay safe."
+];
+
+const BANK_HEADING = "Titles";
+const DROP_LABEL = "Drop title here";
+
+// Exactly one entry here should have correctColumn: null — that's the
+// decoy. Everything else must point at a real index in COLUMNS below.
+const TITLES = [
+  { text: "Identifying Useful Plants", correctColumn: null },
+  { text: "Preparation", correctColumn: 0 },
+  { text: "If You Get Lost", correctColumn: 2 },
+  { text: "In the Forest", correctColumn: 1 }
+];
+
+const COLUMNS = [
+  {
+    items: [
+      "Get a map of the area and make sure you know where you are going.",
+      "Check the weather forecast.",
+      "Wear clothes and shoes that are suitable for the conditions. If you think the weather may change suddenly, take extra clothing.",
+      "If you are going on a longer walk, take some emergency food with you."
+    ]
+  },
+  {
+    items: [
+      "Provided you follow the signs, you shouldn't get into trouble.",
+      "Never take short cuts unless you're absolutely sure where they go.",
+      "Allow plenty of time to get to your destination or get back before it gets dark."
+    ]
+  },
+  {
+    items: [
+      "As soon as you realize you're lost, stop, keep calm and plan what you will do next.",
+      "Don't eat all your food at once. Have a little at a time.",
+      "Try to find a source of water you can drink from like a river or a stream. Being able to drink is more important than being able to eat.",
+      "Don't keep moving around. Find somewhere that is dry and get plenty of rest. It's easier for rescuers to find you if you stay in one place.",
+      "Always try to stay warm. You can cover yourself with dry plants.",
+      "If you need to keep moving, make sure you use rocks or pieces of wood as signs that show rescuers where you are going.",
+      "As long as you tell yourself you'll survive, you probably will!"
+    ]
+  }
+];
+/* ========================================================================= */
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  html{ font-size: 100%; }
+  :root{
+    /* ---- forest palette, replacing the site's usual blue ---- */
+    --board:#eef2ea;
+    --board-line: rgba(20,30,20,0.09);
+    --ink:#182015;
+    --ink-dim: rgba(24,32,21,0.62);
+    --accent:#3f6b47;
+    --accent-dark:#2f4a34;
+    --coral:#b6392f;
+
+    --panel-dark: #2f4a34;
+    --panel-dark-line: rgba(255,255,255,0.14);
+
+    --slot-empty: #fdf6e0;
+    --slot-border: #d9a91f;
+    --slot-hover-bg: #fbeec0;
+
+    --muted-bg: #dcead8;
+    --muted-bg-2: #cbe0c5;
+    --muted-border: #8fb586;
+
+    --vibrant-bg: #f6e58d;
+    --vibrant-bg-2: #f0d868;
+    --vibrant-border: #c9a227;
+
+    --header-accent: #2f4a34;
+
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: var(--board);
+    font-family: var(--font-body);
+    color: var(--ink);
+    padding-bottom: 60px;
+  }
+  #app{ max-width: 1180px; margin: 0 auto; }
+
+  /* ---------- brochure header ---------- */
+  .hero{
+    position: relative;
+    overflow: hidden;
+    background: #10140f;
+  }
+  .hero img{
+    display:block;
+    width:100%;
+    height: clamp(220px, 34vw, 420px);
+    object-fit: cover;
+    object-position: center 30%;
+  }
+  .hero-intro{
+    position: absolute;
+    left: clamp(16px, 4vw, 48px);
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: min(46%, 460px);
+    background: rgba(16, 20, 15, 0.62);
+    backdrop-filter: blur(2px);
+    border-left: 3px solid var(--vibrant-border);
+    border-radius: 4px;
+    padding: 16px 18px;
+    color: #f3f6f0;
+  }
+  .hero-intro p{
+    margin: 0 0 10px;
+    font-size: clamp(0.82rem, 0.72rem + 0.4vw, 0.98rem);
+    line-height: 1.55;
+  }
+  .hero-intro p:last-child{ margin-bottom: 0; }
+
+  .body-wrap{ padding: 26px 16px 0; }
+
+  /* ---------- Titles bank panel ---------- */
+  .bank-panel{
+    background: var(--panel-dark);
+    border-radius: 14px;
+    padding: 22px 22px 26px;
+    box-shadow: 0 1px 3px rgba(15,30,45,0.15);
+  }
+  .bank-panel h2{
+    font-family: var(--font-mono);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: clamp(0.85rem, 0.8rem + 0.25vw, 1rem);
+    color: #eef2ea;
+    margin: 0 0 14px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--panel-dark-line);
+  }
+  .bank{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .bank.drag-hover{ background: rgba(255,255,255,0.06); border-radius: 10px; }
+  .bank-empty-msg{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: rgba(238,242,234,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 6px 2px;
+  }
+
+  /* ---------- title cards ---------- */
+  .card{
+    padding: 12px 16px;
+    border-radius: 9px;
+    background: linear-gradient(180deg, var(--muted-bg), var(--muted-bg-2));
+    border: 1.5px solid var(--muted-border);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: clamp(0.92rem, 0.86rem + 0.3vw, 1.08rem);
+    line-height: 1.3;
+    cursor: grab;
+    box-shadow: 0 2px 0 rgba(15,30,45,0.1), 0 4px 10px rgba(15,30,45,0.12);
+    user-select: none;
+    touch-action: none;
+    position: relative;
+    flex: 0 1 auto;
+  }
+  .card.dragging{ cursor: grabbing; box-shadow: 0 8px 20px rgba(15,30,45,0.3); }
+  .card.selected{ outline: 2.5px solid var(--vibrant-border); outline-offset: 2px; }
+  .card:focus-visible{ outline: 2.5px solid var(--vibrant-border); outline-offset: 2px; }
+
+  /* ---------- columns ---------- */
+  .columns{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 22px;
+  }
+  .column{ display:flex; flex-direction:column; }
+
+  .slot{
+    min-height: 52px;
+    border-radius: 10px;
+    border: 2px dashed var(--slot-border);
+    background: var(--slot-empty);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: #8a6d10;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align:center;
+    transition: background .15s, border-color .15s;
+    margin-bottom: 14px;
+    position: relative;
+  }
+  .slot.filled{ border-style: solid; padding: 0; background: none; }
+  .slot.hover{ background: var(--slot-hover-bg); border-color: var(--vibrant-border); }
+  .slot:focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+  .slot .card{
+    width: 100%;
+    background: linear-gradient(180deg, var(--vibrant-bg), var(--vibrant-bg-2));
+    border-color: var(--vibrant-border);
+    box-shadow: 0 2px 0 rgba(201,162,39,0.35), 0 4px 10px rgba(15,30,45,0.1);
+    cursor: grab;
+    padding-right: 40px;
+    text-align: left;
+  }
+
+  .remove-btn{
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--vibrant-border);
+    background: #ffffff;
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .remove-btn:hover{ background: var(--coral); border-color: var(--coral); color: #ffffff; }
+
+  .tips{
+    list-style: none;
+    counter-reset: tip;
+    margin: 0;
+    padding: 0;
+    display:flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .tips li{
+    counter-increment: tip;
+    display:flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: clamp(0.92rem, 0.86rem + 0.3vw, 1.05rem);
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .tips li::before{
+    content: counter(tip) ".";
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent);
+    min-width: 1.4em;
+  }
+
+  .drag-ghost{
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.95;
+    transform: translate(-50%, -50%) rotate(-2deg);
+  }
+
+  .progress-wrap{ max-width: 300px; margin: 22px auto 0; }
+  .progress-track{ height: 6px; border-radius: 4px; background: rgba(63,107,71,0.15); overflow:hidden; }
+  .progress-fill{ height: 100%; background: var(--accent); width: 0%; transition: width .25s; }
+
+  .footer-bar{ display:flex; justify-content: center; margin-top: 30px; }
+  .text-scale-group{
+    display:flex;
+    align-items:stretch;
+    border: 1.5px solid var(--muted-border);
+    border-radius: 8px;
+    overflow:hidden;
+  }
+  .text-scale-group button{
+    border: none;
+    border-radius: 0;
+    border-right: 1.5px solid var(--muted-border);
+  }
+  .text-scale-group button:last-child{ border-right: none; }
+  button{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  button:hover{ border-color: var(--accent); color: var(--accent); background: rgba(63,107,71,0.08); }
+  button:focus-visible{ outline: 2.5px solid var(--accent); outline-offset: 2px; }
+
+  @media (max-width: 860px){
+    .hero-intro{ max-width: min(60%, 420px); }
+  }
+  @media (max-width: 700px){
+    .columns{ grid-template-columns: 1fr; }
+    .hero img{ object-position: center 20%; }
+    .hero-intro{
+      position: static;
+      transform: none;
+      max-width: none;
+      margin: 14px 16px 0;
+      border-radius: 8px;
+    }
+    .body-wrap{ padding-top: 18px; }
+  }
+`;
+document.head.appendChild(styleTag);
+
+/* ---------------- state ---------------- */
+// placed: { columnIndex: titleIndex }
+let placed = {};
+let selectedCard = null;
+let textScalePct = 100;
+
+function render(){
+  root.innerHTML = `
+    <div class="hero">
+      <img src="${HEADER_IMAGE}" alt="${HEADER_IMAGE_ALT}">
+      <div class="hero-intro">
+        ${INTRO_TEXT.map(p => `<p>${p}</p>`).join('')}
+      </div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="body-wrap">
+      <div class="bank-panel">
+        <h2>${BANK_HEADING}</h2>
+        <div class="bank" id="bank"></div>
+      </div>
+      <div class="columns">
+        ${COLUMNS.map((col, i) => `
+          <div class="column">
+            <div class="slot" data-slot="${i}" id="slot-${i}" role="button" tabindex="0" aria-label="${DROP_LABEL}, column ${i+1}">${DROP_LABEL}</div>
+            <ul class="tips">
+              ${col.items.map(t => `<li>${t}</li>`).join('')}
+            </ul>
+          </div>
+        `).join('')}
+      </div>
+      <div class="footer-bar">
+        <div class="text-scale-group" role="group" aria-label="Adjust text size">
+          <button id="scaleDown" aria-label="Decrease text size">A−</button>
+          <button id="scaleReset" aria-label="Reset text size">A</button>
+          <button id="scaleUp" aria-label="Increase text size">A+</button>
+        </div>
+      </div>
+    </div>
+  `;
+  renderBank();
+  attachInteractions();
+  attachScaleControls();
+}
+
+function renderBank(){
+  const bank = document.getElementById('bank');
+  bank.innerHTML = '';
+  const usedIdxs = Object.values(placed).map(Number);
+  let anyLeft = false;
+  TITLES.forEach((title, i) => {
+    if (usedIdxs.includes(i)) return;
+    anyLeft = true;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.cardIdx = i;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', title.text);
+    card.textContent = title.text;
+    bank.appendChild(card);
+  });
+  if (!anyLeft){
+    bank.innerHTML = '<div class="bank-empty-msg">All titles placed</div>';
+  }
+}
+
+function updateProgress(){
+  // Progress is measured against the number of real columns, not the
+  // total title count — the decoy is never meant to be placed, so it
+  // shouldn't stop the bar from reaching 100%.
+  const filled = Object.keys(placed).length;
+  const pct = Math.round((filled / COLUMNS.length) * 100);
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+}
+
+function placeCardInSlot(cardIdx, slotIdx){
+  cardIdx = Number(cardIdx);
+  slotIdx = Number(slotIdx);
+  for (const [s, c] of Object.entries(placed)){
+    if (Number(c) === cardIdx) delete placed[s];
+  }
+  if (placed[slotIdx] !== undefined) delete placed[slotIdx];
+  placed[slotIdx] = cardIdx;
+  selectedCard = null;
+  renderSlots();
+  renderBank();
+  updateProgress();
+  attachInteractions();
+}
+
+function removeFromSlot(slotIdx){
+  if (placed[slotIdx] === undefined) return;
+  delete placed[slotIdx];
+  selectedCard = null;
+  renderSlots();
+  renderBank();
+  updateProgress();
+  attachInteractions();
+}
+
+function renderSlots(){
+  COLUMNS.forEach((_, i) => {
+    const slotEl = document.getElementById('slot-' + i);
+    if (!slotEl) return;
+    slotEl.classList.remove('filled');
+    if (placed[i] !== undefined){
+      const title = TITLES[placed[i]];
+      slotEl.classList.add('filled');
+      slotEl.innerHTML = `
+        <div class="card" data-card-idx="${placed[i]}" data-placed-slot="${i}" role="button" tabindex="0" aria-label="${title.text}, placed. Press Delete to remove.">
+          ${title.text}
+          <button class="remove-btn" data-remove-slot="${i}" aria-label="Remove this title" type="button">×</button>
+        </div>`;
+    } else {
+      slotEl.textContent = DROP_LABEL;
+    }
+  });
+}
+
+/* ---------------- interactions ---------------- */
+function attachInteractions(){
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      if (card.dataset.justDragged === '1') { card.dataset.justDragged = '0'; return; }
+      document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+      if (selectedCard === card.dataset.cardIdx){ selectedCard = null; }
+      else { selectedCard = card.dataset.cardIdx; card.classList.add('selected'); }
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); card.click(); }
+    });
+    card.addEventListener('pointerdown', (e) => startDrag(e, card));
+  });
+
+  document.querySelectorAll('.slot').forEach(slot => {
+    slot.addEventListener('click', (e) => {
+      if (e.target.closest('.remove-btn')) return;
+      if (selectedCard !== null) placeCardInSlot(selectedCard, slot.dataset.slot);
+    });
+    slot.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); slot.click(); }
+    });
+  });
+
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.stopPropagation(); removeFromSlot(btn.dataset.removeSlot); });
+  });
+}
+
+function attachScaleControls(){
+  const clamp = (v) => Math.min(150, Math.max(70, v));
+  const apply = () => { document.documentElement.style.fontSize = textScalePct + '%'; };
+  document.getElementById('scaleDown').addEventListener('click', () => { textScalePct = clamp(textScalePct - 10); apply(); });
+  document.getElementById('scaleUp').addEventListener('click', () => { textScalePct = clamp(textScalePct + 10); apply(); });
+  document.getElementById('scaleReset').addEventListener('click', () => { textScalePct = 100; apply(); });
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' && selectedCard !== null){
+    const slotIdx = Object.keys(placed).find(s => String(placed[s]) === String(selectedCard));
+    if (slotIdx !== undefined){ e.preventDefault(); removeFromSlot(slotIdx); }
+  } else if (e.key === 'Escape' && selectedCard !== null){
+    document.querySelectorAll('.card.selected').forEach(c => c.classList.remove('selected'));
+    selectedCard = null;
+  }
+});
+
+let dragGhost = null;
+let dragMoved = false;
+
+function startDrag(e, card){
+  e.preventDefault();
+  dragMoved = false;
+  const rect = card.getBoundingClientRect();
+  const originSlot = card.dataset.placedSlot;
+
+  dragGhost = card.cloneNode(true);
+  dragGhost.classList.add('drag-ghost');
+  dragGhost.style.width = rect.width + 'px';
+  dragGhost.style.height = rect.height + 'px';
+  dragGhost.style.left = (rect.left + rect.width/2) + 'px';
+  dragGhost.style.top = (rect.top + rect.height/2) + 'px';
+  const ghostRemoveBtn = dragGhost.querySelector('.remove-btn');
+  if (ghostRemoveBtn) ghostRemoveBtn.remove();
+  document.body.appendChild(dragGhost);
+  card.classList.add('dragging');
+
+  function onMove(ev){
+    dragMoved = true;
+    dragGhost.style.left = ev.clientX + 'px';
+    dragGhost.style.top = ev.clientY + 'px';
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('hover'));
+    document.getElementById('bank').classList.remove('drag-hover');
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    const slot = target && target.closest('.slot');
+    const bank = target && target.closest('.bank');
+    if (slot) slot.classList.add('hover');
+    else if (bank && originSlot !== undefined) bank.classList.add('drag-hover');
+  }
+
+  function onUp(ev){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+    card.classList.remove('dragging');
+    if (dragGhost) { dragGhost.remove(); dragGhost = null; }
+    document.querySelectorAll('.slot').forEach(s => s.classList.remove('hover'));
+    document.getElementById('bank').classList.remove('drag-hover');
+
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    const slot = target && target.closest('.slot');
+    const cardIdx = card.dataset.cardIdx;
+
+    if (slot && dragMoved){ placeCardInSlot(cardIdx, slot.dataset.slot); }
+    else if (dragMoved && originSlot !== undefined){ removeFromSlot(originSlot); }
+    if (dragMoved) card.dataset.justDragged = '1';
+  }
+
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+
+render();
+</script>
+</body>
+</html>
