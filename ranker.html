@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>The Ranker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   THE RANKER — students drag/click qualities from a bank into an ordered
+   ranking list, then reorder that list with up/down buttons (no drag
+   reordering within the list — buttons only, by design). Numbering in the
+   ranking list is purely positional: it's recalculated from array order
+   every render, never stored per-item.
+
+   Interaction mechanic (drag + click-to-place + keyboard, card/slot
+   selection model) is intentionally copied from index.html / categorize.html
+   so it feels consistent with the rest of the site. The one structural
+   difference: instead of dropping into a fixed, named slot, everything
+   dropped/placed lands at the END of a single ordered list — reordering
+   after that is a separate step, done with the up/down buttons.
+   ========================================================================== */
+
+/* ====================== EDIT THIS FOR EACH LESSON ====================== */
+const HEADER_TITLE = "THE RANKER";
+const HEADER_TAGLINE = "What do you think are the most important traits for a successful athlete?";
+const HEADER_SUBTITLE = "Rank the qualities that you think make a successful athlete from most to least important. When you return to class, be prepared to explain why you chose your Top 2.";
+
+const QUALITIES_HEADING = "Qualities";
+const RANKING_HEADING = "Your Ranking";
+
+// italic: the substring of text to italicize, or null for no emphasis.
+const QUALITIES = [
+  { text: "Genetics", italic: "Genetics" },
+  { text: "Started playing sports at a young age", italic: null },
+  { text: "Personal technique", italic: "technique" },
+  { text: "Quality coaching", italic: null },
+  { text: "Competitive mindset", italic: "Competitive" },
+  { text: "Environment of advantage", italic: "advantage" },
+  { text: "Money", italic: null }
+];
+/* ========================================================================= */
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  html{ font-size: 100%; } /* baseline the A-/A/A+ control multiplies against */
+  :root{
+    /* ---- purple palette, built around the requested #BA68C8 ---- */
+    --board:#f7eefa;
+    --board-line: rgba(50,20,60,0.10);
+    --ink:#1d1420;
+    --ink-dim: rgba(29,20,32,0.62);
+    --coral:#b6392f;
+
+    /* #BA68C8 as given — used for borders, dashed outlines, and card
+       fills throughout. On its own it's ~3.6:1 against white, fine for
+       borders/fills (3:1 minimum for UI components) but not for small
+       text, so text-bearing elements use --accent-dark instead. */
+    --brand:#ba68c8;
+    --accent:#9c4eaa;       /* mid purple: focus rings, hover states */
+    --accent-dark:#7b1fa2;  /* header text + badge fill — ~8.2:1 with white, ~8.2:1 with white text on it */
+
+    --slot-empty:#fbf3fd;
+    --slot-border: var(--brand);
+    --slot-hover-bg:#f0dcf7;
+
+    /* Qualities bank cards (not yet ranked) */
+    --muted-bg:#f4e3f9;
+    --muted-bg-2:#ecd2f4;
+    --muted-border: var(--brand);
+
+    /* Ranked cards (placed in Your Ranking) */
+    --vibrant-bg:#e6bdee;
+    --vibrant-bg-2:#dba3e6;
+    --vibrant-border: var(--accent);
+
+    /* Top-2 ranked rows get this "gold" treatment — the same amber
+       used site-wide as the "correctly filled" cue in phrases.html /
+       index.html — regardless of which quality currently holds the spot. */
+    --gold-bg:#feeabe;
+    --gold-bg-2:#fbdfa0;
+    --gold-border:#d9af5c;
+    --gold-text:#8a6d10; /* ~4.9:1 on white, also used as badge fill so white text still passes */
+
+    /* Complementary header colors so the two columns read distinctly
+       instead of both leaning on the same purple. */
+    --header-accent-qualities: var(--accent-dark);
+    --header-accent-ranking: var(--gold-text);
+
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: radial-gradient(ellipse at top left, rgba(255,255,255,0.7), transparent 55%), var(--board);
+    background-attachment: fixed;
+    font-family: var(--font-body);
+    color: var(--ink);
+    padding: 28px 16px 60px;
+  }
+  #app{ max-width: 1180px; margin: 0 auto; }
+
+  header{ text-align:center; margin-bottom: 22px; }
+  h1{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(16px, 4vw, 32px);
+    font-family: var(--font-body);
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    font-size: clamp(1.4rem, 1.1rem + 1.3vw, 1.9rem);
+    line-height: 1.2;
+    margin: 0 0 10px;
+    color: var(--ink);
+  }
+  .trophy{
+    font-size: 0.9em;
+    line-height: 1;
+  }
+  .tagline{
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
+    line-height: 1.4;
+    color: var(--ink);
+    margin: 0 0 10px;
+  }
+  .subtitle{ font-size: 1.2rem; line-height: 1.6; color: #212121; margin: 0 auto; max-width: 62ch; }
+
+  .progress-wrap{ max-width: 300px; margin: 18px auto 22px; }
+  .progress-track{ height: 6px; border-radius: 4px; background: rgba(186,104,200,0.18); overflow:hidden; }
+  .progress-fill{ height: 100%; background: var(--accent-dark); width: 0%; transition: width .25s; }
+
+  .board{
+    border: 1.5px dashed var(--brand);
+    border-radius: 14px;
+    padding: 24px 20px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(60,20,70,0.06);
+  }
+
+  .layout{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 34px;
+    align-items: start;
+  }
+
+  .col-header{
+    font-family: var(--font-mono);
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-size: clamp(0.9rem, 0.84rem + 0.3vw, 1.08rem);
+    margin: 0 0 10px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--board-line);
+  }
+  /* Complementary colors per column — purple for Qualities, gold for
+     Your Ranking — so the two headers are clearly distinct at a glance
+     instead of matching. */
+  .qualities-panel .col-header{
+    color: var(--header-accent-qualities);
+    border-bottom-color: rgba(123,31,162,0.25);
+  }
+  .ranking-panel .col-header{
+    color: var(--header-accent-ranking);
+    border-bottom-color: rgba(138,109,16,0.3);
+  }
+
+  /* ---------- Qualities bank ---------- */
+  .qualities-panel{ position: sticky; top: 16px; }
+  .bank{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 40px;
+    border-radius: 10px;
+    transition: background .15s;
+  }
+  .bank.drag-hover{ background: rgba(186,104,200,0.08); }
+  .bank-empty-msg{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 10px 2px;
+  }
+
+  .card{
+    width:100%;
+    padding: 12px 14px;
+    border-radius: 9px;
+    background: linear-gradient(180deg, var(--muted-bg), var(--muted-bg-2));
+    border: 1.5px solid var(--muted-border);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+    line-height: 1.4;
+    display:flex;
+    align-items:center;
+    text-align:left;
+    cursor: grab;
+    box-shadow: 0 2px 0 rgba(186,104,200,0.28), 0 4px 10px rgba(60,20,70,0.08);
+    user-select: none;
+    touch-action: none;
+    position: relative;
+  }
+  .card .quality-text{ flex: 1; }
+  .card.dragging{ cursor: grabbing; box-shadow: 0 8px 20px rgba(60,20,70,0.25); }
+  .card.selected{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+  .card:focus-visible{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+
+  /* ---------- Your Ranking ---------- */
+  .ranking-list{ display:flex; flex-direction:column; gap: 10px; }
+
+  .ranked-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 10px 10px 10px 12px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, var(--vibrant-bg), var(--vibrant-bg-2));
+    border: 1.5px solid var(--vibrant-border);
+    box-shadow: 0 2px 0 rgba(156,78,170,0.28), 0 4px 10px rgba(60,20,70,0.1);
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .ranked-row.dragging{ cursor: grabbing; box-shadow: 0 8px 20px rgba(60,20,70,0.28); }
+  .ranked-row.selected{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+  .ranked-row:focus-visible{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+
+  /* Gold treatment for whichever two qualities currently sit at #1
+     and #2 — tracks position, not identity, so it moves with whatever
+     the student ranks there. */
+  .ranked-row.rank-gold{
+    background: linear-gradient(180deg, var(--gold-bg), var(--gold-bg-2));
+    border-color: var(--gold-border);
+    box-shadow: 0 2px 0 rgba(217,175,92,0.35), 0 4px 10px rgba(15,30,45,0.08);
+  }
+  .ranked-row.rank-gold .badge-circle{ background: var(--gold-text); }
+  .ranked-row.rank-gold .order-btn{ border-color: var(--gold-border); color: var(--gold-text); }
+  .ranked-row.rank-gold .order-btn:hover:not(:disabled){ background: var(--gold-text); color: #ffffff; }
+  .ranked-row.rank-gold .remove-btn{ border-color: var(--gold-border); }
+
+  /* The "growing space" itself — sized in JS to match the dragged
+     row's exact height, so the list visibly opens up room for it. */
+  .rank-placeholder{
+    border-radius: 10px;
+    border: 2px dashed var(--brand);
+    background: var(--slot-empty);
+    box-sizing: border-box;
+  }
+
+  .badge-circle{
+    flex-shrink: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #ffffff;
+    background: var(--accent-dark);
+  }
+
+  .ranked-text{
+    flex: 1;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.1rem);
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .ranked-text em, .card em{ font-style: italic; font-weight: 600; color: var(--accent-dark); }
+
+  .order-btns{
+    display:flex;
+    flex-direction: column;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+  .order-btn{
+    width: 26px;
+    height: 22px;
+    padding: 0;
+    border-radius: 5px;
+    border: 1.5px solid var(--vibrant-border);
+    background: #ffffff;
+    color: var(--accent-dark);
+    font-size: 11px;
+    line-height: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor: pointer;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .order-btn:hover:not(:disabled){ background: var(--accent-dark); color: #ffffff; }
+  .order-btn:disabled{ opacity: 0.3; cursor: default; }
+
+  .remove-btn{
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 1.5px solid var(--vibrant-border);
+    background: #ffffff;
+    color: var(--ink-dim);
+    font-size: 15px;
+    line-height: 1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor: pointer;
+    padding: 0;
+  }
+  .remove-btn:hover{ background: var(--coral); border-color: var(--coral); color: #ffffff; }
+
+  .add-slot{
+    min-height: 52px;
+    border-radius: 10px;
+    border: 2px dashed var(--brand);
+    background: var(--slot-empty);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 10px 14px;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--ink-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background .15s, border-color .15s;
+    cursor: pointer;
+  }
+  .add-slot.hover{ background: var(--slot-hover-bg); border-color: var(--accent-dark); }
+  .add-slot:focus-visible{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+
+  .ranking-full-msg{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align:center;
+    padding: 14px 2px;
+    border-radius: 10px;
+    background: rgba(186,104,200,0.08);
+  }
+
+  .drag-ghost{
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.95;
+    transform: translate(-50%, -50%) rotate(-2deg);
+  }
+
+  /* ---------- footer: text-size control ---------- */
+  .footer-bar{ display:flex; justify-content: center; margin-top: 26px; }
+  .text-scale-group{
+    display:flex;
+    align-items:stretch;
+    border: 1.5px solid var(--brand);
+    border-radius: 8px;
+    overflow:hidden;
+  }
+  .text-scale-group button{
+    border: none;
+    border-radius: 0;
+    border-right: 1.5px solid var(--brand);
+  }
+  .text-scale-group button:last-child{ border-right: none; }
+  button{
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1.5px solid var(--brand);
+    background: transparent;
+    color: var(--ink);
+    cursor: pointer;
+    transition: all .15s;
+  }
+  button:hover{ border-color: var(--accent-dark); color: var(--accent-dark); background: rgba(186,104,200,0.08); }
+  button:focus-visible{ outline: 2.5px solid var(--accent-dark); outline-offset: 2px; }
+
+  @media (max-width: 780px){
+    .layout{ grid-template-columns: 1fr; gap: 24px; }
+    .qualities-panel{ position: static; }
+  }
+`;
+document.head.appendChild(styleTag);
+
+/* ---------------- state ---------------- */
+let ranked = [];           // ordered array of QUALITIES indices, position = rank
+let selectedCard = null;   // currently selected QUALITIES index, or null
+let textScalePct = 100;
+let reorderState = null;   // { qIdx, rowHeight, targetIndex } while a reorder-drag is live, else null
+
+function italicize(text, italicPhrase){
+  if (!italicPhrase) return text;
+  const idx = text.indexOf(italicPhrase);
+  if (idx === -1) return text;
+  const before = text.slice(0, idx);
+  const match = text.slice(idx, idx + italicPhrase.length);
+  const after = text.slice(idx + italicPhrase.length);
+  return `${before}<em>${match}</em>${after}`;
+}
+
+function render(){
+  root.innerHTML = `
+    <header>
+      <h1><span class="trophy" aria-hidden="true">🏆</span><span>${HEADER_TITLE}</span><span class="trophy" aria-hidden="true">🏆</span></h1>
+      <h3 class="tagline">${HEADER_TAGLINE}</h3>
+      <p class="subtitle">${HEADER_SUBTITLE}</p>
+    </header>
+    <div class="progress-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div class="board" id="board">
+      <div class="layout">
+        <div class="qualities-panel">
+          <h2 class="col-header">${QUALITIES_HEADING}</h2>
+          <div class="bank" id="bank"></div>
+        </div>
+        <div class="ranking-panel">
+          <h2 class="col-header">${RANKING_HEADING}</h2>
+          <div class="ranking-list" id="rankingList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bar">
+      <div class="text-scale-group" role="group" aria-label="Adjust text size">
+        <button id="scaleDown" aria-label="Decrease text size">A−</button>
+        <button id="scaleReset" aria-label="Reset text size">A</button>
+        <button id="scaleUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  `;
+  renderBank();
+  renderRankingList();
+  updateProgress();
+  attachInteractions();
+  attachScaleControls();
+}
+
+function renderBank(){
+  const bank = document.getElementById('bank');
+  bank.innerHTML = '';
+  let anyLeft = false;
+  QUALITIES.forEach((q, i) => {
+    if (ranked.includes(i)) return;
+    anyLeft = true;
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.qualityIdx = i;
+    card.setAttribute('role', 'button');
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('aria-label', q.text);
+    card.innerHTML = `<span class="quality-text">${italicize(q.text, q.italic)}</span>`;
+    bank.appendChild(card);
+  });
+  if (!anyLeft){
+    bank.innerHTML = '<div class="bank-empty-msg">All qualities ranked</div>';
+  }
+}
+
+/* Builds the list of what to render: normally just the ranked qualities
+   in order, but while a reorder-drag is live, the dragged quality is
+   pulled out and a same-height placeholder is spliced in at its current
+   target index instead — that placeholder IS the "growing space". */
+function computeDisplayTokens(){
+  if (!reorderState){
+    return ranked.map(qIdx => ({ type: 'quality', qIdx }));
+  }
+  const others = ranked.filter(qIdx => qIdx !== reorderState.qIdx);
+  const tokens = others.map(qIdx => ({ type: 'quality', qIdx }));
+  const insertAt = Math.max(0, Math.min(reorderState.targetIndex, tokens.length));
+  tokens.splice(insertAt, 0, { type: 'placeholder' });
+  return tokens;
+}
+
+function captureFlipRects(list){
+  const rects = {};
+  list.querySelectorAll('[data-flip-key]').forEach(el => {
+    rects[el.dataset.flipKey] = el.getBoundingClientRect();
+  });
+  return rects;
+}
+
+/* FLIP: whatever moved between the "before" snapshot and the freshly
+   rendered "after" DOM gets an inverse transform applied instantly, then
+   animated back to zero — so rows visually glide into their new spot
+   instead of snapping. */
+function playFlipAnimation(list, prevRects){
+  list.querySelectorAll('[data-flip-key]').forEach(el => {
+    const key = el.dataset.flipKey;
+    const before = prevRects[key];
+    if (!before) return;
+    const after = el.getBoundingClientRect();
+    const deltaY = before.top - after.top;
+    if (Math.abs(deltaY) < 1) return;
+    el.style.transition = 'none';
+    el.style.transform = `translateY(${deltaY}px)`;
+    el.getBoundingClientRect(); // force reflow so the jump above applies before we animate away from it
+    requestAnimationFrame(() => {
+      el.style.transition = 'transform 200ms ease';
+      el.style.transform = '';
+    });
+  });
+}
+
+function renderRankingList(){
+  const list = document.getElementById('rankingList');
+  const prevRects = captureFlipRects(list);
+  list.innerHTML = '';
+
+  const tokens = computeDisplayTokens();
+
+  tokens.forEach((tok, pos) => {
+    if (tok.type === 'placeholder'){
+      const ph = document.createElement('div');
+      ph.className = 'rank-placeholder';
+      ph.dataset.flipKey = 'placeholder';
+      ph.style.height = (reorderState ? reorderState.rowHeight : 0) + 'px';
+      list.appendChild(ph);
+      return;
+    }
+    const qIdx = tok.qIdx;
+    const q = QUALITIES[qIdx];
+    const row = document.createElement('div');
+    row.className = 'ranked-row' + (pos < 2 ? ' rank-gold' : '');
+    row.dataset.qualityIdx = qIdx;
+    row.dataset.flipKey = 'q' + qIdx;
+    row.setAttribute('role', 'button');
+    row.setAttribute('tabindex', '0');
+    row.setAttribute('aria-label', `Rank ${pos + 1}: ${q.text}. Press Delete to remove, drag to reorder, or use the up and down buttons.`);
+    row.innerHTML = `
+      <span class="badge-circle">${pos + 1}</span>
+      <span class="ranked-text">${italicize(q.text, q.italic)}</span>
+      <span class="order-btns">
+        <button class="order-btn" type="button" data-move="up" data-quality-idx="${qIdx}" aria-label="Move ${q.text} up" ${pos === 0 ? 'disabled' : ''}>&#9650;</button>
+        <button class="order-btn" type="button" data-move="down" data-quality-idx="${qIdx}" aria-label="Move ${q.text} down" ${pos === tokens.length - 1 ? 'disabled' : ''}>&#9660;</button>
+      </span>
+      <button class="remove-btn" type="button" data-remove-idx="${qIdx}" aria-label="Remove ${q.text} from your ranking">&times;</button>
+    `;
+    list.appendChild(row);
+  });
+
+  if (!reorderState){
+    if (ranked.length < QUALITIES.length){
+      const addSlot = document.createElement('div');
+      addSlot.className = 'add-slot';
+      addSlot.id = 'addSlot';
+      addSlot.setAttribute('role', 'button');
+      addSlot.setAttribute('tabindex', '0');
+      addSlot.textContent = ranked.length === 0
+        ? 'Drag a quality here, or tap one above and then tap here'
+        : '+ Add a quality here';
+      addSlot.setAttribute('aria-label', 'Add the selected quality to your ranking');
+      list.appendChild(addSlot);
+    } else {
+      const full = document.createElement('div');
+      full.className = 'ranking-full-msg';
+      full.textContent = 'All qualities ranked';
+      list.appendChild(full);
+    }
+  }
+
+  playFlipAnimation(list, prevRects);
+}
+
+function updateProgress(){
+  const pct = Math.round((ranked.length / QUALITIES.length) * 100);
+  const fill = document.getElementById('progressFill');
+  if (fill) fill.style.width = pct + '%';
+}
+
+function addToRanking(qIdx){
+  qIdx = Number(qIdx);
+  ranked = ranked.filter(i => i !== qIdx);
+  ranked.push(qIdx);
+  selectedCard = null;
+  renderBank();
+  renderRankingList();
+  updateProgress();
+  attachInteractions();
+}
+
+function removeFromRanking(qIdx){
+  qIdx = Number(qIdx);
+  if (!ranked.includes(qIdx)) return;
+  ranked = ranked.filter(i => i !== qIdx);
+  selectedCard = null;
+  renderBank();
+  renderRankingList();
+  updateProgress();
+  attachInteractions();
+}
+
+function moveRank(qIdx, direction){
+  qIdx = Number(qIdx);
+  const pos = ranked.indexOf(qIdx);
+  if (pos === -1) return;
+  const swapWith = direction === 'up' ? pos - 1 : pos + 1;
+  if (swapWith < 0 || swapWith >= ranked.length) return;
+  [ranked[pos], ranked[swapWith]] = [ranked[swapWith], ranked[pos]];
+  renderRankingList();
+  attachInteractions();
+}
+
+/* ---------------- interactions ---------------- */
+function clearSelection(){
+  document.querySelectorAll('.card.selected, .ranked-row.selected').forEach(el => el.classList.remove('selected'));
+  selectedCard = null;
+}
+
+function attachInteractions(){
+  document.querySelectorAll('.bank .card').forEach(card => {
+    card.addEventListener('click', () => {
+      if (card.dataset.justDragged === '1') { card.dataset.justDragged = '0'; return; }
+      const idx = card.dataset.qualityIdx;
+      if (selectedCard === idx){ clearSelection(); return; }
+      clearSelection();
+      selectedCard = idx;
+      card.classList.add('selected');
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); card.click(); }
+    });
+    card.addEventListener('pointerdown', (e) => startCardDrag(e, card, Number(card.dataset.qualityIdx), 'bank'));
+  });
+
+  document.querySelectorAll('.ranked-row').forEach(row => {
+    row.addEventListener('click', (e) => {
+      if (e.target.closest('.order-btn') || e.target.closest('.remove-btn')) return;
+      if (row.dataset.justDragged === '1') { row.dataset.justDragged = '0'; return; }
+      const idx = row.dataset.qualityIdx;
+      if (selectedCard === idx){ clearSelection(); return; }
+      clearSelection();
+      selectedCard = idx;
+      row.classList.add('selected');
+    });
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); row.click(); }
+    });
+    row.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('.order-btn') || e.target.closest('.remove-btn')) return;
+      startCardDrag(e, row, Number(row.dataset.qualityIdx), 'ranked');
+    });
+  });
+
+  document.querySelectorAll('.order-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      moveRank(btn.dataset.qualityIdx, btn.dataset.move);
+    });
+  });
+
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      removeFromRanking(btn.dataset.removeIdx);
+    });
+  });
+
+  const addSlot = document.getElementById('addSlot');
+  if (addSlot){
+    addSlot.addEventListener('click', () => {
+      if (selectedCard !== null) addToRanking(selectedCard);
+    });
+    addSlot.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); addSlot.click(); }
+    });
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (selectedCard === null) return;
+  if (e.key === 'Delete' || e.key === 'Backspace'){
+    if (ranked.includes(Number(selectedCard))){
+      e.preventDefault();
+      removeFromRanking(selectedCard);
+    }
+  } else if (e.key === 'Escape'){
+    clearSelection();
+  }
+});
+
+function attachScaleControls(){
+  const clamp = (v) => Math.min(150, Math.max(70, v));
+  const apply = () => { document.documentElement.style.fontSize = textScalePct + '%'; };
+  document.getElementById('scaleDown').addEventListener('click', () => { textScalePct = clamp(textScalePct - 10); apply(); });
+  document.getElementById('scaleUp').addEventListener('click', () => { textScalePct = clamp(textScalePct + 10); apply(); });
+  document.getElementById('scaleReset').addEventListener('click', () => { textScalePct = 100; apply(); });
+}
+
+/* ---------------- drag and drop (Qualities <-> Your Ranking) ---------------- */
+/* One shared "space-making" drag for both directions: dragging a bank
+   card toward the ranking list, and dragging a ranked row to reposition
+   it. Nothing visual happens until the pointer has actually moved a few
+   pixels, so a plain click/tap always falls through to its normal click
+   handler untouched.
+
+   Once a real drag starts, the dragged item is represented purely by a
+   floating ghost plus a same-height placeholder spliced into the ranking
+   list at the current target index. That target index is recalculated
+   on every move by comparing the pointer to each currently-listed row's
+   midpoint. Whenever it changes, the list re-renders and FLIP animates
+   the rows sliding into their new spots — so the gap visibly grows and
+   shrinks to make room, instead of a static insertion line — and this
+   now applies whether the item is coming from the Qualities bank or
+   already lives in the ranking list.
+
+   For a bank card, the live preview only kicks in once the pointer
+   actually enters the ranking panel (before that it's just a normal
+   drag with nothing reserved yet); leaving the panel again cancels the
+   preview. For a ranked row, the preview is live for the whole drag,
+   and dropping over the Qualities column removes it — same as the
+   remove button. */
+function startCardDrag(e, sourceEl, qIdx, origin){
+  e.preventDefault();
+  const rect = sourceEl.getBoundingClientRect();
+  const startX = e.clientX, startY = e.clientY;
+  let started = false;
+  let ghost = null;
+
+  function computeTargetIndex(centerY){
+    const others = document.querySelectorAll('#rankingList .ranked-row[data-quality-idx]');
+    let idx = 0;
+    others.forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (centerY > r.top + r.height / 2) idx++;
+    });
+    return idx;
+  }
+
+  // Builds the floating ghost. For a ranked row, clone it directly. For
+  // a bank card, build a ranked-row-shaped ghost instead of cloning the
+  // (shorter, unnumbered) bank card — so its height matches what will
+  // actually be inserted, and the placeholder it drives is sized right.
+  function makeGhost(){
+    let el;
+    if (origin === 'ranked'){
+      el = sourceEl.cloneNode(true);
+      const ob = el.querySelector('.order-btns'); if (ob) ob.remove();
+      const rb = el.querySelector('.remove-btn'); if (rb) rb.remove();
+      el.style.width = rect.width + 'px';
+    } else {
+      const colWidth = document.getElementById('rankingList').getBoundingClientRect().width;
+      const q = QUALITIES[qIdx];
+      el = document.createElement('div');
+      el.className = 'ranked-row';
+      el.innerHTML = `<span class="badge-circle">+</span><span class="ranked-text">${italicize(q.text, q.italic)}</span>`;
+      el.style.width = colWidth + 'px';
+    }
+    el.classList.add('drag-ghost');
+    document.body.appendChild(el);
+    const height = el.getBoundingClientRect().height;
+    el.style.height = height + 'px';
+    return { el, height };
+  }
+
+  function beginVisualDrag(ev){
+    started = true;
+    if (origin === 'bank') sourceEl.classList.add('dragging');
+    const built = makeGhost();
+    ghost = built.el;
+    ghost.style.left = ev.clientX + 'px';
+    ghost.style.top = ev.clientY + 'px';
+
+    if (origin === 'ranked'){
+      reorderState = { qIdx, rowHeight: built.height, targetIndex: ranked.indexOf(qIdx) };
+      renderRankingList();
+      attachInteractions();
+    }
+    // Bank-origin: reorderState stays null until the pointer actually
+    // enters the ranking panel — handled in onMove below.
+  }
+
+  function onMove(ev){
+    if (!started){
+      if (Math.abs(ev.clientX - startX) < 4 && Math.abs(ev.clientY - startY) < 4) return;
+      beginVisualDrag(ev);
+    }
+    ghost.style.left = ev.clientX + 'px';
+    ghost.style.top = ev.clientY + 'px';
+
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    const rankingPanel = target && target.closest('.ranking-panel');
+    const qualitiesPanel = target && target.closest('.qualities-panel');
+    let needsRender = false;
+
+    if (origin === 'bank'){
+      if (rankingPanel){
+        const newIdx = computeTargetIndex(ev.clientY);
+        if (!reorderState){
+          reorderState = { qIdx, rowHeight: ghost.getBoundingClientRect().height, targetIndex: newIdx };
+          needsRender = true;
+        } else if (reorderState.targetIndex !== newIdx){
+          reorderState.targetIndex = newIdx;
+          needsRender = true;
+        }
+      } else if (reorderState){
+        reorderState = null;
+        needsRender = true;
+      }
+    } else {
+      const newIdx = computeTargetIndex(ev.clientY);
+      if (reorderState.targetIndex !== newIdx){
+        reorderState.targetIndex = newIdx;
+        needsRender = true;
+      }
+      document.getElementById('bank').classList.toggle('drag-hover', !!qualitiesPanel);
+    }
+
+    if (needsRender){
+      renderRankingList();
+      attachInteractions();
+    }
+  }
+
+  function onUp(ev){
+    document.removeEventListener('pointermove', onMove);
+    document.removeEventListener('pointerup', onUp);
+
+    if (!started) return; // never moved — a plain click, let the source's own click handler run
+
+    if (origin === 'bank') sourceEl.classList.remove('dragging');
+    if (ghost) ghost.remove();
+    document.getElementById('bank').classList.remove('drag-hover');
+
+    const target = document.elementFromPoint(ev.clientX, ev.clientY);
+    const rankingPanel = target && target.closest('.ranking-panel');
+    const qualitiesPanel = target && target.closest('.qualities-panel');
+
+    if (origin === 'ranked'){
+      const finalIndex = reorderState.targetIndex;
+      reorderState = null;
+      if (qualitiesPanel){
+        removeFromRanking(qIdx);
+        return;
+      }
+      const others = ranked.filter(i => i !== qIdx);
+      others.splice(finalIndex, 0, qIdx);
+      ranked = others;
+      selectedCard = null;
+      renderBank();
+      renderRankingList();
+      updateProgress();
+      attachInteractions();
+      return;
+    }
+
+    // origin 'bank'
+    if (reorderState && rankingPanel){
+      const finalIndex = reorderState.targetIndex;
+      reorderState = null;
+      const next = ranked.filter(i => i !== qIdx);
+      next.splice(finalIndex, 0, qIdx);
+      ranked = next;
+      selectedCard = null;
+      renderBank();
+      renderRankingList();
+      updateProgress();
+      attachInteractions();
+    } else {
+      reorderState = null;
+      renderRankingList();
+      attachInteractions();
+    }
+  }
+
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+
+render();
+</script>
+</body>
+</html>
