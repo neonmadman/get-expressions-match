@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Causative Have/Get — Rewrite Practice</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/google-sans-flex:vf@latest/wght.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   Causative have/get — rewrite practice. Restyled to match the diagnostic
+   and matching exercise (Google Sans Flex, named accent colors, blurred
+   decor blobs).
+
+   Each item: column 1 is a plain active-voice prompt sentence (read-only).
+   Column 2 is the causative rewrite of that same sentence, with part of
+   it blanked out. The blank always covers the have/get portion, but its
+   position/length varies deliberately — sometimes the subject is already
+   given ("Karen ___ mended..."), sometimes the blank opens the sentence
+   ("___ blown away..."). No cue is shown anywhere: have and get are both
+   acceptable answers throughout, matching how interchangeable they
+   actually are here, so there is deliberately no single "correct" word
+   being tested. No auto-grading, same as everywhere else on this site.
+   ========================================================================== */
+
+const HEADER_TITLE = "Rewrite It";
+const HEADER_SUBTITLE = "Rewrite each sentence using have or get. Fill in only the missing words.";
+
+// pre/post are the fixed text around the blank in the rewrite (column 2).
+// pre is "" when the blank opens the sentence.
+const ITEMS = [
+  { prompt: "A seamstress mended Karen's veil that morning.", pre: "Karen ", post: " mended by a seamstress that morning." },
+  { prompt: "A seagull stole Steve's food during the reception dinner.", pre: "", post: " stolen by a seagull during the reception dinner." },
+  { prompt: "A technician set up the lights for the tent.", pre: "They ", post: " set up by a technician for the tent." },
+  { prompt: "The wind blew Karen's hat away during the outdoor photos.", pre: "", post: " blown away by the wind during the outdoor photos." },
+  { prompt: "A barber trimmed Steve's hair before the ceremony.", pre: "Steve ", post: " trimmed by a barber before the ceremony." },
+  { prompt: "A careless waiter stained Karen's dress during the toasts.", pre: "", post: " stained by a careless waiter during the toasts." },
+  { prompt: "The florist made a smaller bouquet for Karen.", pre: "Karen ", post: " made by the florist." },
+  { prompt: "The sudden rain soaked Steve's jacket during the reception.", pre: "", post: " soaked by the sudden rain during the reception." }
+];
+
+// Same 5 named accents as the diagnostic and matching exercise, cycling
+// per item — identity, not correctness.
+const ACCENTS = [
+  { name: "sky",     bg: "#2F8FE0", tint: "#E7F1FC" },
+  { name: "gold",    bg: "#EDA200", tint: "#FDF3E0" },
+  { name: "peony",   bg: "#DC4C86", tint: "#FBE8F0" },
+  { name: "sage",    bg: "#2E9A63", tint: "#E4F5EC" },
+  { name: "plum",    bg: "#7C5CD1", tint: "#EFEAFB" }
+];
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  :root{
+    --ink:#14161C;
+    --ink-dim:#5B5F6B;
+    --paper:#FAF9F7;
+    --line: rgba(20,22,28,0.08);
+    --font: 'Google Sans Flex Variable', 'Google Sans', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: var(--paper);
+    font-family: var(--font);
+    color: var(--ink);
+    padding: 40px 20px 70px;
+  }
+  #app{ max-width: 980px; margin: 0 auto; }
+
+  .decor{ position: fixed; border-radius: 50%; filter: blur(60px); opacity: 0.16; z-index: -1; pointer-events: none; }
+  .decor-1{ width: 420px; height: 420px; background: #2F8FE0; top: -160px; left: -140px; }
+  .decor-2{ width: 380px; height: 380px; background: #DC4C86; bottom: -140px; right: -120px; }
+
+  header{ margin-bottom: 30px; }
+  .eyebrow{
+    display:inline-block; font-weight:800; font-size:0.78rem; letter-spacing:0.14em;
+    color:#2F8FE0; background:#E7F1FC; padding:5px 12px; border-radius:999px; margin-bottom:16px;
+  }
+  h1{
+    font-weight: 900;
+    font-size: clamp(2.1rem, 1.7rem + 1.8vw, 3.1rem);
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
+  }
+  .subtitle{ font-weight:500; font-size: clamp(1rem, 0.95rem + 0.2vw, 1.1rem); color: var(--ink-dim); margin:0; }
+
+  .items{ display:flex; flex-direction:column; gap: 14px; margin-top: 30px; }
+
+  .row{
+    display:grid;
+    grid-template-columns: 1fr 28px 1.15fr;
+    gap: 16px;
+    align-items:center;
+    background:#fff;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 3px rgba(15,30,45,0.06), 0 1px 2px rgba(15,30,45,0.04);
+  }
+
+  .prompt-line{ display:flex; gap:12px; align-items:flex-start; }
+  .num{
+    flex-shrink:0; width:28px; height:28px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900; font-size:0.82rem; color:#fff;
+  }
+  .prompt-text{ font-weight:500; font-size: clamp(0.94rem, 0.9rem + 0.15vw, 1.02rem); line-height:1.45; color: var(--ink); padding-top:3px; }
+
+  .arrow{ text-align:center; color: var(--ink-dim); font-size:1.2rem; font-weight:700; }
+
+  .rewrite-line{
+    font-weight:600;
+    font-size: clamp(0.94rem, 0.9rem + 0.15vw, 1.02rem);
+    line-height: 1.7;
+    color: var(--ink);
+  }
+
+  .measurer{ position:absolute; visibility:hidden; white-space:pre; top:-9999px; left:-9999px; }
+
+  input.blank{
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: clamp(0.94rem, 0.9rem + 0.15vw, 1.02rem);
+    color: var(--ink);
+    border: 2px solid var(--line);
+    background: #fbfbfa;
+    border-radius: 8px;
+    padding: 4px 10px;
+    min-width: 7rem;
+    width: 7rem;
+    max-width: 100%;
+    text-align: center;
+    margin: 0 2px;
+    transition: background .15s, border-color .15s;
+  }
+  input.blank:focus{ outline: none; }
+  input.blank.has-value:not(:focus){ font-weight: 700; }
+
+  .footer-bar{ display:flex; justify-content:center; margin-top: 34px; }
+  .text-scale-group{ display:flex; align-items:stretch; border-radius: 999px; overflow:hidden; background:#F1EEE9; }
+  button{
+    font-family: var(--font); font-weight:800; font-size:0.85rem;
+    padding: 10px 16px; border:none; background:transparent; color: var(--ink); cursor:pointer;
+  }
+  button:hover{ background: rgba(20,22,28,0.06); }
+  button:focus-visible{ outline: 2.5px solid var(--ink); outline-offset: -2px; }
+
+  @media (max-width: 700px){
+    .row{ grid-template-columns: 1fr; gap: 10px; }
+    .arrow{ transform: rotate(90deg); text-align:left; padding-left: 40px; }
+  }
+`;
+document.head.appendChild(styleTag);
+
+let textScalePct = 100;
+
+const measurer = document.createElement('span');
+measurer.className = 'measurer';
+document.body.appendChild(measurer);
+
+function autoGrowInput(inp){
+  const cs = getComputedStyle(inp);
+  measurer.style.fontFamily = cs.fontFamily;
+  measurer.style.fontWeight = cs.fontWeight;
+  measurer.style.fontSize = cs.fontSize;
+  measurer.style.letterSpacing = cs.letterSpacing;
+  measurer.textContent = inp.value || '';
+  const textWidth = measurer.getBoundingClientRect().width;
+  const rootPx = parseFloat(getComputedStyle(document.documentElement).fontSize);
+  const minWidth = 6.5 * rootPx;
+  const maxWidth = 22 * rootPx;
+  const desired = Math.max(minWidth, textWidth + 28);
+  inp.style.width = Math.min(desired, maxWidth) + 'px';
+}
+
+function render(){
+  root.innerHTML = `
+    <div class="decor decor-1"></div>
+    <div class="decor decor-2"></div>
+    <header>
+      <span class="eyebrow">CONTROLLED PRACTICE</span>
+      <h1>${HEADER_TITLE}</h1>
+      <p class="subtitle">${HEADER_SUBTITLE}</p>
+    </header>
+    <div class="items">
+      ${ITEMS.map((it, i) => {
+        const accent = ACCENTS[i % ACCENTS.length];
+        return `
+        <div class="row">
+          <div class="prompt-line">
+            <span class="num" style="background:${accent.bg}">${i + 1}</span>
+            <span class="prompt-text">${it.prompt}</span>
+          </div>
+          <div class="arrow">\u2192</div>
+          <div class="rewrite-line">${it.pre}<input class="blank" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Blank for item ${i + 1}" style="border-color:${accent.bg}55;">${it.post}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="footer-bar">
+      <div class="text-scale-group" role="group" aria-label="Adjust text size">
+        <button id="scaleDown" aria-label="Decrease text size">A\u2212</button>
+        <button id="scaleReset" aria-label="Reset text size">A</button>
+        <button id="scaleUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  `;
+  document.querySelectorAll('input.blank').forEach((inp, i) => {
+    const accent = ACCENTS[i % ACCENTS.length];
+    inp.addEventListener('input', () => {
+      inp.classList.toggle('has-value', inp.value.trim().length > 0);
+      inp.style.background = inp.value.trim().length > 0 ? accent.tint : '#fbfbfa';
+      inp.style.borderColor = inp.value.trim().length > 0 ? accent.bg : accent.bg + '55';
+      autoGrowInput(inp);
+    });
+    autoGrowInput(inp);
+  });
+  const clamp = (v) => Math.min(150, Math.max(70, v));
+  const apply = () => {
+    document.documentElement.style.fontSize = textScalePct + '%';
+    requestAnimationFrame(() => {
+      document.querySelectorAll('input.blank').forEach(autoGrowInput);
+    });
+  };
+  document.getElementById('scaleDown').addEventListener('click', () => { textScalePct = clamp(textScalePct - 10); apply(); });
+  document.getElementById('scaleUp').addEventListener('click', () => { textScalePct = clamp(textScalePct + 10); apply(); });
+  document.getElementById('scaleReset').addEventListener('click', () => { textScalePct = 100; apply(); });
+}
+
+render();
+</script>
+</body>
+</html>

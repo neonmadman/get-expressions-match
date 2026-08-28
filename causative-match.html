@@ -228,34 +228,9 @@ styleTag.textContent = `
     display:grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
-    margin-top: 12px;
+    margin-top: 44px;
   }
   .bucket-col{ display:flex; flex-direction:column; }
-  .bucket-label{
-    display:flex;
-    gap: 10px;
-    align-items:flex-start;
-    margin-bottom: 12px;
-  }
-  .bucket-letter{
-    flex-shrink:0;
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight: 900;
-    font-size: 0.92rem;
-    color: #ffffff;
-  }
-  .bucket-text{
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1.4;
-    color: var(--ink);
-    padding-top: 4px;
-  }
   .bucket{
     min-height: 130px;
     border-radius: 18px;
@@ -270,11 +245,12 @@ styleTag.textContent = `
     box-shadow: inset 0 2px 5px rgba(0,0,0,0.12);
   }
   .bucket-empty-msg{
-    font-weight: 700;
-    font-size: 0.78rem;
-    color: rgba(255,255,255,0.85);
+    font-weight: 900;
+    font-size: clamp(1.6rem, 1.3rem + 1.2vw, 2.1rem);
+    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.9);
     text-align:center;
-    padding: 24px 4px;
+    padding: 40px 4px;
   }
 
   .drag-ghost{
@@ -332,11 +308,7 @@ function render(){
         const accent = ACCENTS[b.accent];
         return `
         <div class="bucket-col">
-          <div class="bucket-label">
-            <span class="bucket-letter" style="background:${accent.bg}">${b.letter}</span>
-            <span class="bucket-text">${b.text}</span>
-          </div>
-          <div class="bucket" data-bucket="${i}" id="bucket-${i}" role="button" tabindex="0" aria-label="Bucket ${b.letter}: ${b.text}" style="background:${accent.bg}; border-color:${accent.dark};"></div>
+          <div class="bucket" data-bucket="${i}" id="bucket-${i}" role="button" tabindex="0" aria-label="Bucket ${b.letter}" style="background:${accent.bg}; border-color:${accent.dark};"></div>
         </div>`;
       }).join('')}
     </div>
@@ -385,7 +357,7 @@ function renderBuckets(){
     el.classList.remove('hover');
     const cardIdxs = Object.keys(placed).filter(k => placed[k] === bi).map(Number);
     if (cardIdxs.length === 0){
-      el.innerHTML = '<div class="bucket-empty-msg">drop sentences here</div>';
+      el.innerHTML = `<div class="bucket-empty-msg">Bucket ${b.letter}</div>`;
       return;
     }
     el.innerHTML = cardIdxs.map(ci => {
