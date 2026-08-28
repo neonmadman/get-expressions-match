@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Chaos at the Wedding — Causative Diagnostic</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/google-sans-flex:vf@latest/wght.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   Diagnostic — final content pass.
+
+   7 items, 2 options each (plain passive vs. causative describing the
+   same event). Dropped the third-option distractors and joke answers
+   from earlier drafts — every pair is now a clean, serious "which one
+   sounds better" choice where the causative option is unambiguously the
+   more natural one, no third alternative that could arguably also be
+   correct. Correct-answer position varies across items rather than
+   defaulting to one letter. Neither the dentist nor the stolen-car
+   scenario is used here since both are reserved for MFP clarification.
+
+   Aesthetic unchanged from the approved mockup: Google Sans Flex
+   throughout, big flat numbered badges, glossy two-option pill pairs in
+   one named accent color per item, cycling through five. Plain/bare
+   setup lines with no background — color is reserved for the thing being
+   chosen, not spent on decoration.
+   ========================================================================== */
+
+const HEADER_TITLE = "Chaos at the Wedding";
+const HEADER_SUBTITLE = "Choose the sentence that puts Karen and Steve's wedding at the center of the story (it's their wedding, after all!)";
+
+// 7 items, 2 options each. Every pair is plain passive vs. causative
+// describing the exact same event - no third distractor, no joke options.
+// Correct-answer position is varied (b,a,b,a,b,b,a) rather than fixed.
+const ITEMS = [
+  { setup: "Karen can't bake, so before the wedding \u2014", options: [
+    { text: "The cake was made by a bakery.", correct: false },
+    { text: "Karen had the cake made by a bakery.", correct: true }
+  ]},
+  { setup: "Steve can't sew, so before the wedding \u2014", options: [
+    { text: "Steve had his jacket fixed by a tailor.", correct: true },
+    { text: "His jacket was fixed by a tailor.", correct: false }
+  ]},
+  { setup: "They didn't want to write 200 invitations by hand.", options: [
+    { text: "The invitations were printed at a shop.", correct: false },
+    { text: "They got the invitations printed at a shop.", correct: true }
+  ]},
+  { setup: "Karen doesn't do her own hair, so before the ceremony \u2014", options: [
+    { text: "Karen had her hair curled by a stylist.", correct: true },
+    { text: "Her hair was curled by a stylist.", correct: false }
+  ]},
+  { setup: "Karen and Steve don't know anything about flowers.", options: [
+    { text: "The flowers were arranged by a florist.", correct: false },
+    { text: "They got the flowers arranged by a florist.", correct: true }
+  ]},
+  { setup: "During the party \u2014", options: [
+    { text: "Karen's bag was stolen.", correct: false },
+    { text: "Karen had her bag stolen.", correct: true }
+  ]},
+  { setup: "Steve was angry after the dancing.", options: [
+    { text: "Steve got his new shoes stepped on.", correct: true },
+    { text: "His new shoes were stepped on.", correct: false }
+  ]}
+];
+
+// Five named accents, cycled one per item — not tied to correctness,
+// just gives each pair its own identity the way the slide decks do.
+const ACCENTS = [
+  { name: "sky",     bg: "#2F8FE0", tint: "#E7F1FC" },
+  { name: "gold",    bg: "#EDA200", tint: "#FDF3E0" },
+  { name: "peony",   bg: "#DC4C86", tint: "#FBE8F0" },
+  { name: "sage",    bg: "#2E9A63", tint: "#E4F5EC" },
+  { name: "plum",    bg: "#7C5CD1", tint: "#EFEAFB" }
+];
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  :root{
+    --ink:#14161C;
+    --ink-dim:#5B5F6B;
+    --paper:#FAF9F7;
+    --card:#FFFFFF;
+    --line: rgba(20,22,28,0.08);
+    --font: 'Google Sans Flex Variable', 'Google Sans', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: var(--paper);
+    font-family: var(--font);
+    color: var(--ink);
+    padding: 40px 20px 70px;
+  }
+  #app{ max-width: 720px; margin: 0 auto; }
+
+  .decor{
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.16;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .decor-1{ width: 420px; height: 420px; background: #2F8FE0; top: -160px; left: -140px; }
+  .decor-2{ width: 380px; height: 380px; background: #DC4C86; bottom: -140px; right: -120px; }
+
+  header{ margin-bottom: 40px; }
+  .eyebrow{
+    display: inline-block;
+    font-weight: 800;
+    font-size: 0.78rem;
+    letter-spacing: 0.14em;
+    color: #2F8FE0;
+    background: #E7F1FC;
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  h1{
+    font-weight: 900;
+    font-size: clamp(2.4rem, 1.9rem + 2.2vw, 3.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .subtitle{
+    font-weight: 500;
+    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.15rem);
+    color: var(--ink-dim);
+    margin: 0;
+    max-width: 46ch;
+  }
+
+  .item{ margin-bottom: 30px; }
+
+  .item-head{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .num{
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1rem;
+    color: #ffffff;
+  }
+  .setup{
+    font-weight: 700;
+    font-size: clamp(1.02rem, 0.98rem + 0.15vw, 1.12rem);
+    line-height: 1.4;
+    color: var(--ink);
+    padding-top: 4px;
+  }
+
+  .options{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 48px;
+  }
+
+  .opt{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 15px 18px;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: clamp(0.96rem, 0.92rem + 0.15vw, 1.04rem);
+    line-height: 1.4;
+    cursor: pointer;
+    transition: transform .1s, box-shadow .15s;
+    color: var(--ink);
+  }
+  .opt:hover{ transform: translateY(-1px); }
+  .opt:active{ transform: translateY(0); }
+  .opt:focus-visible{ outline: 2.5px solid var(--ink); outline-offset: 2px; }
+
+  .opt-letter{
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    background: rgba(255,255,255,0.55);
+  }
+  .opt.selected .opt-letter{
+    background: rgba(255,255,255,0.28);
+    color: #ffffff;
+  }
+  .opt-check{
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    transition: opacity .12s;
+  }
+  .opt.selected .opt-check{ opacity: 1; }
+
+  .footer-note{
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+    margin-top: 44px;
+  }
+`;
+document.head.appendChild(styleTag);
+
+let selections = {};
+
+function render(){
+  root.innerHTML = `
+    <div class="decor decor-1"></div>
+    <div class="decor decor-2"></div>
+    <header>
+      <h1>${HEADER_TITLE}</h1>
+      <p class="subtitle">${HEADER_SUBTITLE}</p>
+    </header>
+    <div class="items">
+      ${ITEMS.map((it, i) => {
+        const accent = ACCENTS[i % ACCENTS.length];
+        return `
+        <div class="item">
+          <div class="item-head">
+            <span class="num" style="background:${accent.bg}">${i + 1}</span>
+            <span class="setup">${it.setup}</span>
+          </div>
+          <div class="options" data-item="${i}">
+            ${it.options.map((opt, oi) => {
+              const letter = String.fromCharCode(97 + oi);
+              return `
+              <button class="opt" type="button" data-choice="${letter}" data-item="${i}" style="background:${accent.tint}">
+                <span class="opt-letter" style="color:${accent.bg}">${letter}</span>
+                <span>${opt.text}</span>
+                <svg class="opt-check" viewBox="0 0 20 20" fill="none"><path d="M4 10.5L8 14.5L16 6" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <p class="footer-note">${Object.keys(selections).length} / ${ITEMS.length} answered</p>
+  `;
+
+  document.querySelectorAll('.opt').forEach(btn => {
+    const i = btn.dataset.item;
+    const choice = btn.dataset.choice;
+    const accent = ACCENTS[i % ACCENTS.length];
+    const isSelected = selections[i] === choice;
+    btn.classList.toggle('selected', isSelected);
+    if (isSelected){
+      btn.style.background = accent.bg;
+      btn.style.color = '#ffffff';
+      btn.style.boxShadow = '0 6px 16px ' + accent.bg + '55';
+    }
+    btn.addEventListener('click', () => {
+      selections[i] = choice;
+      render();
+    });
+  });
+}
+
+render();
+</script>
+</body>
+</html>
