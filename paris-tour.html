@@ -37,10 +37,10 @@
    ========================================================================== */
 
 const HEADER_TITLE = "The Two Sides of Paris";
-const HEADER_SUBTITLE = "Scan the text for these six details. Don't read every word \u2014 just track down the answer.";
+const HEADER_SUBTITLE = "Scan the text for these details. Click on the answer to select. Work with your groups!";
 
 const ITEMS = [
-  { setup: "Where do most tour groups go for a view of the city?", options: [
+  { setup: "Where do most tour groups go for a view of Paris?", options: [
     { text: "The Eiffel Tower", correct: true },
     { text: "A museum or art gallery", correct: false },
     { text: "A caf\u00e9 or restaurant", correct: false }
@@ -113,18 +113,6 @@ styleTag.textContent = `
   #app{ max-width: 720px; margin: 0 auto; }
 
   header{ margin-bottom: 30px; }
-  .eyebrow{
-    display: inline-block;
-    font-weight: 800;
-    font-size: 0.78rem;
-    letter-spacing: 0.14em;
-    color: #2F8FE0;
-    background: #EAF3FC;
-    border: 1.5px solid #2F8FE0;
-    padding: 4px 11px;
-    border-radius: 7px;
-    margin-bottom: 16px;
-  }
   h1{
     font-weight: 900;
     font-size: clamp(2.3rem, 1.85rem + 2.1vw, 3.4rem);
@@ -271,7 +259,6 @@ const clampScale = (v) => Math.min(150, Math.max(70, v));
 function render(){
   root.innerHTML = `
     <header>
-      <span class="eyebrow">SCANNING</span>
       <h1>${HEADER_TITLE}</h1>
       <p class="subtitle">${HEADER_SUBTITLE}</p>
       <div class="stripe">${ACCENTS.map(a => `<span style="background:${a.bg}"></span>`).join('')}</div>
