@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>The Two Sides of Paris — Scanning</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/google-sans-flex:vf@latest/wght.css">
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+/* ==========================================================================
+   Scanning task — "The Two Sides of Paris" (TP05).
+
+   6 items, 3 options each. Item 1 covers paragraph 1 (surface Paris);
+   items 2-6 are the coursebook's own "9c Reading REVISED" set covering
+   paragraphs 2-4 (the catacombs/tunnels).
+
+   NO AUTO-GRADING, per house convention. `correct` flags on each option
+   are an authoring note for the teacher's own answer key only — the
+   render/interaction code never reads them. Students select an answer,
+   the app just tracks that a choice was made, and the class goes over
+   answers together live.
+
+   Answer key (teacher reference only, not shown in the UI):
+   1-a, 2-c, 3-b, 4-a, 5-c, 6-b
+
+   Aesthetic: same DNA as causative-diagnostic.html (Google Sans Flex,
+   named accent colors cycling per item, numbered badges) but flattened
+   deliberately per request — no blurred corner decor, no glossy
+   drop-shadow glow on selection, no full-pill option shapes. Flat fills,
+   thin borders, a hard-edged (non-blurred) shadow on hover only. Still
+   colorful — the accent still owns the badge and the selected state —
+   just without the "birthday cake" shine.
+   ========================================================================== */
+
+const HEADER_TITLE = "The Two Sides of Paris";
+const HEADER_SUBTITLE = "Scan the text for these details. Click on the answer to select. Work with your groups!";
+
+const ITEMS = [
+  { setup: "Where do most tour groups go for a view of Paris?", options: [
+    { text: "The Eiffel Tower", correct: true },
+    { text: "A museum or art gallery", correct: false },
+    { text: "A caf\u00e9 or restaurant", correct: false }
+  ]},
+  { setup: "How long are the Catacombs of Paris?", options: [
+    { text: "2 kilometers", correct: false },
+    { text: "250 kilometers", correct: false },
+    { text: "Hundreds of kilometers", correct: true }
+  ]},
+  { setup: "Are tourists allowed to go underground?", options: [
+    { text: "Yes, nowadays they can go everywhere.", correct: false },
+    { text: "It depends on where they want to go.", correct: true },
+    { text: "No, never.", correct: false }
+  ]},
+  { setup: "Why are the tunnels dangerous?", options: [
+    { text: "The writer doesn't say.", correct: true },
+    { text: "They might fall down.", correct: false },
+    { text: "There are criminals down there.", correct: false }
+  ]},
+  { setup: "How have people used other parts of the tunnels?", options: [
+    { text: "For somewhere to live.", correct: false },
+    { text: "For studying the architecture.", correct: false },
+    { text: "For fun and entertainment.", correct: true }
+  ]},
+  { setup: "Why is it difficult to find Dominique and Yopie's room?", options: [
+    { text: "They never take anyone there.", correct: false },
+    { text: "It isn't on a map.", correct: true },
+    { text: "The tunnels are very small and dark.", correct: false }
+  ]}
+];
+
+// Same five named accents as the causative set, for continuity across
+// Brennon's materials \u2014 just applied flat here instead of glossy.
+// `on` is the text/icon color to use against `bg` when selected. Pink and
+// teal (from the classic Material palette) both clear a legible contrast
+// against white, unlike orange/amber, so everything here uses white text.
+// Order is deliberately interleaved \u2014 sky, pink, sage, peony, teal, plum \u2014
+// so the two pinks (pink/peony) and the two greens (sage/teal) never land
+// on neighboring items.
+const ACCENTS = [
+  { name: "sky",     bg: "#2F8FE0", tint: "#EAF3FC", on: "#ffffff" },
+  { name: "pink",    bg: "#E91E63", tint: "#FCE4EC", on: "#ffffff" },
+  { name: "sage",    bg: "#278356", tint: "#E6F3EC", on: "#ffffff" },
+  { name: "peony",   bg: "#C13E76", tint: "#FAE9F0", on: "#ffffff" },
+  { name: "teal",    bg: "#009688", tint: "#E0F2F1", on: "#ffffff" },
+  { name: "plum",    bg: "#6B4EB8", tint: "#EEEAFA", on: "#ffffff" }
+];
+
+const root = document.getElementById('app');
+
+const styleTag = document.createElement('style');
+styleTag.textContent = `
+  :root{
+    --ink:#14161C;
+    --ink-dim:#5B5F6B;
+    --paper:#FAF9F7;
+    --card:#FFFFFF;
+    --line: rgba(20,22,28,0.14);
+    --font: 'Google Sans Flex Variable', 'Google Sans', system-ui, sans-serif;
+  }
+  *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+  html,body{ margin:0; padding:0; }
+  body{
+    min-height:100vh;
+    background: var(--paper);
+    font-family: var(--font);
+    color: var(--ink);
+    padding: 40px 20px 70px;
+  }
+  #app{ max-width: 720px; margin: 0 auto; }
+
+  header{ margin-bottom: 30px; }
+  h1{
+    font-weight: 900;
+    font-size: clamp(2.3rem, 1.85rem + 2.1vw, 3.4rem);
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .subtitle{
+    font-weight: 500;
+    font-size: clamp(1rem, 0.95rem + 0.2vw, 1.15rem);
+    color: var(--ink-dim);
+    margin: 0 0 22px;
+    max-width: 48ch;
+  }
+  .stripe{
+    display: flex;
+    height: 6px;
+    width: 168px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .stripe span{ flex: 1; }
+
+  .item{ margin-bottom: 28px; }
+
+  .item-head{
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+  .num{
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.98rem;
+    color: #ffffff;
+  }
+  .setup{
+    font-weight: 700;
+    font-size: clamp(1.02rem, 0.98rem + 0.15vw, 1.12rem);
+    line-height: 1.4;
+    color: var(--ink);
+    padding-top: 4px;
+  }
+
+  .options{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-left: 46px;
+  }
+
+  .opt{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    width: 100%;
+    border: 2px solid var(--line);
+    background: var(--card);
+    border-radius: 12px;
+    padding: 13px 16px;
+    font-family: var(--font);
+    font-weight: 600;
+    font-size: clamp(0.94rem, 0.9rem + 0.15vw, 1.02rem);
+    line-height: 1.4;
+    cursor: pointer;
+    transition: background .12s, border-color .12s, transform .08s;
+    color: var(--ink);
+  }
+  .opt:hover{ transform: translateY(-1px); }
+  .opt:active{ transform: translateY(0); }
+  .opt:focus-visible{ outline: 2.5px solid var(--ink); outline-offset: 2px; }
+
+  .opt-letter{
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.74rem;
+    font-weight: 800;
+    border: 1.5px solid var(--line);
+    color: var(--ink-dim);
+  }
+  .opt.selected .opt-letter{
+    background: var(--on-tint, rgba(255,255,255,0.22));
+    border-color: var(--on-border, rgba(255,255,255,0.5));
+    color: inherit;
+  }
+  .opt-check{
+    margin-left: auto;
+    flex-shrink: 0;
+    width: 19px;
+    height: 19px;
+    opacity: 0;
+    transition: opacity .1s;
+  }
+  .opt.selected .opt-check{ opacity: 1; }
+
+  .footer-bar{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: 40px;
+  }
+  .footer-note{
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--ink-dim);
+  }
+  .text-scale-group{ display:flex; align-items:stretch; gap: 6px; }
+  button.scale-btn{
+    font-family: var(--font);
+    font-weight: 800;
+    font-size: 0.85rem;
+    padding: 9px 16px;
+    border-radius: 9px;
+    border: 1.5px solid var(--line);
+    background: var(--card);
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color .12s, background .12s;
+  }
+  button.scale-btn:hover{ border-color: var(--ink-dim); background: #F1F0ED; }
+  button.scale-btn:focus-visible{ outline: 2.5px solid var(--ink); outline-offset: 2px; }
+`;
+document.head.appendChild(styleTag);
+
+let selections = {};
+let textScalePct = 100;
+const clampScale = (v) => Math.min(150, Math.max(70, v));
+
+function render(){
+  root.innerHTML = `
+    <header>
+      <h1>${HEADER_TITLE}</h1>
+      <p class="subtitle">${HEADER_SUBTITLE}</p>
+      <div class="stripe">${ACCENTS.map(a => `<span style="background:${a.bg}"></span>`).join('')}</div>
+    </header>
+    <div class="items">
+      ${ITEMS.map((it, i) => {
+        const accent = ACCENTS[i % ACCENTS.length];
+        return `
+        <div class="item">
+          <div class="item-head">
+            <span class="num" style="background:${accent.bg}">${i + 1}</span>
+            <span class="setup">${it.setup}</span>
+          </div>
+          <div class="options" data-item="${i}">
+            ${it.options.map((opt, oi) => {
+              const letter = String.fromCharCode(97 + oi);
+              return `
+              <button class="opt" type="button" data-choice="${letter}" data-item="${i}">
+                <span class="opt-letter">${letter}</span>
+                <span>${opt.text}</span>
+                <svg class="opt-check" viewBox="0 0 20 20" fill="none"><path d="M4 10.5L8 14.5L16 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>`;
+            }).join('')}
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div class="footer-bar">
+      <p class="footer-note">${Object.keys(selections).length} / ${ITEMS.length} answered</p>
+      <div class="text-scale-group" role="group" aria-label="Adjust text size">
+        <button class="scale-btn" id="scaleDown" aria-label="Decrease text size">A\u2212</button>
+        <button class="scale-btn" id="scaleReset" aria-label="Reset text size">A</button>
+        <button class="scale-btn" id="scaleUp" aria-label="Increase text size">A+</button>
+      </div>
+    </div>
+  `;
+
+  document.querySelectorAll('.opt').forEach(btn => {
+    const i = btn.dataset.item;
+    const choice = btn.dataset.choice;
+    const accent = ACCENTS[i % ACCENTS.length];
+    const isSelected = selections[i] === choice;
+    btn.classList.toggle('selected', isSelected);
+    if (isSelected){
+      btn.style.background = accent.bg;
+      btn.style.borderColor = accent.bg;
+      btn.style.color = accent.on;
+      const isDark = accent.on === '#14161C';
+      btn.style.setProperty('--on-tint', isDark ? 'rgba(20,22,28,0.12)' : 'rgba(255,255,255,0.22)');
+      btn.style.setProperty('--on-border', isDark ? 'rgba(20,22,28,0.35)' : 'rgba(255,255,255,0.5)');
+    } else {
+      btn.style.background = accent.tint;
+      btn.style.color = '';
+    }
+    btn.addEventListener('click', () => {
+      selections[i] = choice;
+      render();
+    });
+  });
+
+  const apply = () => { document.documentElement.style.fontSize = textScalePct + '%'; };
+  document.getElementById('scaleDown').addEventListener('click', () => { textScalePct = clampScale(textScalePct - 10); apply(); });
+  document.getElementById('scaleUp').addEventListener('click', () => { textScalePct = clampScale(textScalePct + 10); apply(); });
+  document.getElementById('scaleReset').addEventListener('click', () => { textScalePct = 100; apply(); });
+}
+
+render();
+</script>
+</body>
+</html>
